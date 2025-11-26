@@ -1,0 +1,362 @@
+/*******************************************************************************
+  System Initialization File
+
+  File Name:
+    initialization.c
+
+  Summary:
+    This file contains source code necessary to initialize the system.
+
+  Description:
+    This file contains source code necessary to initialize the system.  It
+    implements the "SYS_Initialize" function, defines the configuration bits,
+    and allocates any necessary global system resources,
+ *******************************************************************************/
+
+// DOM-IGNORE-BEGIN
+/*******************************************************************************
+* Copyright (C) 2025 Microchip Technology Inc. and its subsidiaries.
+*
+* Subject to your compliance with these terms, you may use Microchip software
+* and any derivatives exclusively with Microchip products. It is your
+* responsibility to comply with third party license terms applicable to your
+* use of third party software (including open source software) that may
+* accompany Microchip software.
+*
+* THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
+* EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
+* WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
+* PARTICULAR PURPOSE.
+*
+* IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
+* INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
+* WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
+* BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
+* FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN
+* ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
+* THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
+ *******************************************************************************/
+// DOM-IGNORE-END
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Included Files
+// *****************************************************************************
+// *****************************************************************************
+#include "configuration.h"
+#include "definitions.h"
+#include "device.h"
+
+
+// ****************************************************************************
+// ****************************************************************************
+// Section: Configuration Bits
+// ****************************************************************************
+// ****************************************************************************
+
+/*** DEVCFG0 ***/
+#pragma config DEBUG =      OFF
+#pragma config JTAGEN =     OFF
+#pragma config ICESEL =     ICS_PGx1
+#pragma config TRCEN =      OFF
+#pragma config BOOTISA =    MIPS32
+#pragma config FSLEEP =     OFF
+#pragma config DBGPER =     PG_ALL
+#pragma config SMCLR =      MCLR_NORM
+#pragma config SOSCGAIN =   G3
+#pragma config SOSCBOOST =  ON
+#pragma config POSCGAIN =   G3
+#pragma config POSCBOOST =  ON
+#pragma config EJTAGBEN =   NORMAL
+
+/*** DEVCFG1 ***/
+#pragma config FNOSC =      SPLL
+#pragma config DMTINTV =    WIN_127_128
+#pragma config FSOSCEN =    ON
+#pragma config IESO =       ON
+#pragma config POSCMOD =    HS
+#pragma config OSCIOFNC =   OFF
+#pragma config FCKSM =      CSECME
+#pragma config WDTPS =      PS1048576
+#pragma config WDTSPGM =    STOP
+#pragma config FWDTEN =     OFF
+#pragma config WINDIS =     NORMAL
+#pragma config FWDTWINSZ =  WINSZ_25
+#pragma config DMTCNT =     DMT31
+#pragma config FDMTEN =     OFF
+
+/*** DEVCFG2 ***/
+#pragma config FPLLIDIV =   DIV_1
+#pragma config FPLLRNG =    RANGE_8_16_MHZ
+#pragma config FPLLICLK =   PLL_POSC
+#pragma config FPLLMULT =   MUL_40
+#pragma config FPLLODIV =   DIV_4
+#pragma config BORSEL =     HIGH
+#pragma config UPLLEN =     ON
+
+/*** DEVCFG3 ***/
+#pragma config USERID =     0xffff
+#pragma config FUSBIDIO2 =   ON
+#pragma config FVBUSIO2 =  ON
+#pragma config PGL1WAY =    ON
+#pragma config PMDL1WAY =   ON
+#pragma config IOL1WAY =    ON
+#pragma config FUSBIDIO1 =   ON
+#pragma config FVBUSIO1 =  ON
+
+/*** BF1SEQ ***/
+#pragma config TSEQ =       0x0
+#pragma config CSEQ =       0xffff
+
+
+
+
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Driver Initialization Data
+// *****************************************************************************
+// *****************************************************************************
+/* Following MISRA-C rules are deviated in the below code block */
+/* MISRA C-2012 Rule 7.2 - Deviation record ID - H3_MISRAC_2012_R_7_2_DR_1 */
+/* MISRA C-2012 Rule 11.1 - Deviation record ID - H3_MISRAC_2012_R_11_1_DR_1 */
+/* MISRA C-2012 Rule 11.3 - Deviation record ID - H3_MISRAC_2012_R_11_3_DR_1 */
+/* MISRA C-2012 Rule 11.8 - Deviation record ID - H3_MISRAC_2012_R_11_8_DR_1 */
+
+
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: System Data
+// *****************************************************************************
+// *****************************************************************************
+/* Structure to hold the object handles for the modules in the system. */
+SYSTEM_OBJECTS sysObj;
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Library/Stack Initialization Data
+// *****************************************************************************
+// *****************************************************************************
+/******************************************************
+ * USB Driver Initialization
+ ******************************************************/
+ 
+
+static uint8_t __attribute__((aligned(512))) endPointTable0[DRV_USBFS_ENDPOINTS_NUMBER * 32];
+
+static void DRV_USB_VBUSPowerEnable0(uint8_t port, bool enable)
+{
+    /* Note: USB Host applications should have a way for Enabling/Disabling the 
+       VBUS. Applications can use a GPIO to turn VBUS on/off through a switch. 
+       In MHC Pin Settings select the pin used as VBUS Power Enable as output and 
+       name it to "VBUS_AH". If you a see a build error from this function either 
+       you have not configured the VBUS Power Enable in MHC pin settings or the 
+       Pin name entered in MHC is not "VBUS_AH". */ 
+    if (enable == true)
+    {
+        /* Enable the VBUS */
+        VBUSON_Set();
+    }
+    else
+    {
+        /* Disable the VBUS */
+        VBUSON_Clear();
+    }
+}
+
+static const DRV_USBFS_INIT drvUSBFSInit0 =
+{
+     /* Assign the endpoint table */
+    .endpointTable= endPointTable0,
+    /* Interrupt Source for USB module */
+    .interruptSource = INT_SOURCE_USB_1 ,
+   
+    /* USB Controller to operate as USB Host */
+    .operationMode = DRV_USBFS_OPMODE_HOST,
+    
+    .operationSpeed = USB_SPEED_FULL,
+ 
+    /* Stop in idle */
+    .stopInIdle = false,
+    
+        /* Suspend in sleep */
+    .suspendInSleep = false,
+    /* Identifies peripheral (PLIB-level) ID */
+    .usbID = USB_ID_1,
+    
+    /* USB Host Power Enable. USB Driver uses this function to Enable the VBUS */ 
+    .portPowerEnable = DRV_USB_VBUSPowerEnable0,
+    
+    /* Root hub available current in milliamperes */
+    .rootHubAvailableCurrent = 500,
+
+};
+
+
+
+
+
+
+
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: System Initialization
+// *****************************************************************************
+// *****************************************************************************
+// <editor-fold defaultstate="collapsed" desc="SYS_TIME Initialization Data">
+
+static const SYS_TIME_PLIB_INTERFACE sysTimePlibAPI = {
+    .timerCallbackSet = (SYS_TIME_PLIB_CALLBACK_REGISTER)CORETIMER_CallbackSet,
+    .timerStart = (SYS_TIME_PLIB_START)CORETIMER_Start,
+    .timerStop = (SYS_TIME_PLIB_STOP)CORETIMER_Stop ,
+    .timerFrequencyGet = (SYS_TIME_PLIB_FREQUENCY_GET)CORETIMER_FrequencyGet,
+    .timerPeriodSet = (SYS_TIME_PLIB_PERIOD_SET)NULL,
+    .timerCompareSet = (SYS_TIME_PLIB_COMPARE_SET)CORETIMER_CompareSet,
+    .timerCounterGet = (SYS_TIME_PLIB_COUNTER_GET)CORETIMER_CounterGet,
+};
+
+static const SYS_TIME_INIT sysTimeInitData =
+{
+    .timePlib = &sysTimePlibAPI,
+    .hwTimerIntNum = 0,
+};
+
+// </editor-fold>
+
+static const SYS_DEBUG_INIT debugInit =
+{
+    .moduleInit = {0},
+    .errorLevel = SYS_DEBUG_GLOBAL_ERROR_LEVEL,
+    .consoleIndex = 0,
+};
+
+
+// <editor-fold defaultstate="collapsed" desc="SYS_CONSOLE Instance 0 Initialization Data">
+
+
+static const SYS_CONSOLE_UART_PLIB_INTERFACE sysConsole0UARTPlibAPI =
+{
+    .read_t = (SYS_CONSOLE_UART_PLIB_READ)UART2_Read,
+    .readCountGet = (SYS_CONSOLE_UART_PLIB_READ_COUNT_GET)UART2_ReadCountGet,
+    .readFreeBufferCountGet = (SYS_CONSOLE_UART_PLIB_READ_FREE_BUFFFER_COUNT_GET)UART2_ReadFreeBufferCountGet,
+    .write_t = (SYS_CONSOLE_UART_PLIB_WRITE)UART2_Write,
+    .writeCountGet = (SYS_CONSOLE_UART_PLIB_WRITE_COUNT_GET)UART2_WriteCountGet,
+    .writeFreeBufferCountGet = (SYS_CONSOLE_UART_PLIB_WRITE_FREE_BUFFER_COUNT_GET)UART2_WriteFreeBufferCountGet,
+};
+
+static const SYS_CONSOLE_UART_INIT_DATA sysConsole0UARTInitData =
+{
+    .uartPLIB = &sysConsole0UARTPlibAPI,
+};
+
+static const SYS_CONSOLE_INIT sysConsole0Init =
+{
+    .deviceInitData = (const void*)&sysConsole0UARTInitData,
+    .consDevDesc = &sysConsoleUARTDevDesc,
+    .deviceIndex = 0,
+};
+
+
+
+// </editor-fold>
+
+
+
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Local initialization functions
+// *****************************************************************************
+// *****************************************************************************
+
+/* MISRAC 2012 deviation block end */
+
+/*******************************************************************************
+  Function:
+    void SYS_Initialize ( void *data )
+
+  Summary:
+    Initializes the board, services, drivers, application and other modules.
+
+  Remarks:
+ */
+
+void SYS_Initialize ( void* data )
+{
+
+    /* MISRAC 2012 deviation block start */
+    /* MISRA C-2012 Rule 2.2 deviated in this file.  Deviation record ID -  H3_MISRAC_2012_R_2_2_DR_1 */
+
+    /* Start out with interrupts disabled before configuring any modules */
+    (void)__builtin_disable_interrupts();
+
+  
+    CLK_Initialize();
+
+    /* Configure CP0.K0 for optimal performance (cached instruction pre-fetch) */
+    __builtin_mtc0(16, 0,(__builtin_mfc0(16, 0) | 0x3U));
+
+    /* Configure Wait States and Prefetch */
+    CHECONbits.PFMWS = 2;
+    CHECONbits.PREFEN = 1;
+
+
+
+	GPIO_Initialize();
+
+    CORETIMER_Initialize();
+	UART2_Initialize();
+
+
+    /* MISRAC 2012 deviation block start */
+    /* Following MISRA-C rules deviated in this block  */
+    /* MISRA C-2012 Rule 11.3 - Deviation record ID - H3_MISRAC_2012_R_11_3_DR_1 */
+    /* MISRA C-2012 Rule 11.8 - Deviation record ID - H3_MISRAC_2012_R_11_8_DR_1 */
+
+
+    /* MISRA C-2012 Rule 11.3, 11.8 deviated below. Deviation record ID -  
+    H3_MISRAC_2012_R_11_3_DR_1 & H3_MISRAC_2012_R_11_8_DR_1*/
+        
+    sysObj.sysTime = SYS_TIME_Initialize(SYS_TIME_INDEX_0, (SYS_MODULE_INIT *)&sysTimeInitData);
+    
+    /* MISRAC 2012 deviation block end */
+    /* MISRA C-2012 Rule 11.3, 11.8 deviated below. Deviation record ID -  
+     H3_MISRAC_2012_R_11_3_DR_1 & H3_MISRAC_2012_R_11_8_DR_1*/
+        
+    sysObj.sysDebug = SYS_DEBUG_Initialize(SYS_DEBUG_INDEX_0, (SYS_MODULE_INIT*)&debugInit);
+
+    /* MISRAC 2012 deviation block end */
+    /* MISRA C-2012 Rule 11.3, 11.8 deviated below. Deviation record ID -  
+     H3_MISRAC_2012_R_11_3_DR_1 & H3_MISRAC_2012_R_11_8_DR_1*/
+        sysObj.sysConsole0 = SYS_CONSOLE_Initialize(SYS_CONSOLE_INDEX_0, (SYS_MODULE_INIT *)&sysConsole0Init);
+   /* MISRAC 2012 deviation block end */
+
+    /* Initialize USB Driver */ 
+    sysObj.drvUSBFSObject0 = DRV_USBFS_Initialize(DRV_USBFS_INDEX_0, (SYS_MODULE_INIT *) &drvUSBFSInit0);    
+
+    /* Initialize the USB Host layer */
+    sysObj.usbHostObject0 = USB_HOST_Initialize (( SYS_MODULE_INIT *)& usbHostInitData );    
+
+
+    /* MISRAC 2012 deviation block end */
+    APP_Initialize();
+    APP_DISPLAY_Initialize();
+    APP_USB_Initialize();
+    MENU_DISPLAY_Initialize();
+
+
+    EVIC_Initialize();
+
+	/* Enable global interrupts */
+    (void)__builtin_enable_interrupts();
+
+
+
+    /* MISRAC 2012 deviation block end */
+}
+
+/*******************************************************************************
+ End of File
+*/
