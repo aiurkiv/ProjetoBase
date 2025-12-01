@@ -105,6 +105,30 @@ typedef struct
 // Exporta a estrutura global
 extern MENU_DISPLAY_DATA menu_displayData;
 
+// Botões
+typedef enum
+{
+    BTN_BACK = 0,
+    BTN_ENTER,
+    BTN_MAIS,
+    BTN_MENOS,
+    BTN_COUNT
+} BUTTON_ID;
+
+typedef enum
+{
+    BTN_EVENT_PRESS,    // apertou
+    BTN_EVENT_RELEASE,  // soltou
+    BTN_EVENT_REPEAT    // auto-repeat
+} BUTTON_EVENT_TYPE;
+
+typedef struct
+{
+    BUTTON_ID        id;
+    BUTTON_EVENT_TYPE type;
+} BUTTON_EVENT;
+
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Callback Routines
@@ -154,6 +178,7 @@ void MENU_DISPLAY_Initialize ( void );
 
 void setup_switches();
 void switch_handler(GPIO_PIN pin, uintptr_t context);
+void TMR3_Callback(uint32_t status, uintptr_t context);
 
 /*******************************************************************************
   Function:

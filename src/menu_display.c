@@ -29,6 +29,8 @@
 #include <string.h>
 #include "menu_display.h"
 #include "app_display.h"     // atualiza_lcd()
+#include "definitions.h"
+
 
 // *****************************************************************************
 // *****************************************************************************
@@ -53,11 +55,24 @@
 
 MENU_DISPLAY_DATA menu_displayData;
 
-// Flags de eventos de botão (setadas na interrupção, lidas na task)
-static volatile bool btn_back_event  = false;
-static volatile bool btn_enter_event = false;
-static volatile bool btn_mais_event  = false;
-static volatile bool btn_menos_event = false;
+
+// Fila de eventos para o menu
+QueueHandle_t xButtonEventQueue = NULL;
+static volatile bool buttonCnPending = false;
+
+#define BTN_DEBOUNCE_MS     15
+#define BTN_LONGPRESS_MS    500   // tempo segurando para começar auto-repeat
+#define BTN_REPEAT_MS       200   // após isso, repete a cada 100 ms
+
+// Máscara de estado estável (debounced): bit 0=BACK, 1=ENTER, 2=MAIS, 3=MENOS
+static volatile uint8_t g_stableMask = 0;
+
+// Contador de debounce em ms (quando >0, estamos esperando estabilizar)
+static volatile uint16_t g_debounceCounter = 0;
+
+// Contadores de tempo "segurando" cada botão (para long-press/repeat)
+static volatile uint16_t g_holdMs[BTN_COUNT];
+static volatile bool     g_repeatActive[BTN_COUNT];
 
 // *****************************************************************************
 // *****************************************************************************
@@ -84,7 +99,34 @@ static volatile bool btn_menos_event = false;
 // Section: Application Initialization and State Machine Functions
 // *****************************************************************************
 // *****************************************************************************
-// ----------------- Funções locais (estáticas) -----------------
+
+// Função rápida para ler o estado atual dos pinos em forma de máscara:
+static inline uint8_t BUTTONS_ReadRawMask(void)
+{
+    uint8_t mask = 0;
+
+    // assumindo 0 = pressionado
+    if (PINO_BTN_BACK_Get()  == 0) mask |= (1 << BTN_BACK);
+    if (PINO_BTN_ENTER_Get() == 0) mask |= (1 << BTN_ENTER);
+    if (PINO_BTN_MAIS_Get()  == 0) mask |= (1 << BTN_MAIS);
+    if (PINO_BTN_MENOS_Get() == 0) mask |= (1 << BTN_MENOS);
+
+    return mask;
+}
+
+// Enviar evento para fila (para usar em ISR):
+static inline void BUTTON_SendEventFromISR(BUTTON_ID id, BUTTON_EVENT_TYPE type,
+                                           BaseType_t *pxHigherPriorityTaskWoken)
+{
+    BUTTON_EVENT ev;
+    ev.id   = id;
+    ev.type = type;
+
+    xQueueSendFromISR(xButtonEventQueue, &ev, pxHigherPriorityTaskWoken);
+}
+
+
+// ----------------- Funções locais -----------------
 
 static void MENU_DISPLAY_ClearBuffer(void)
 {
@@ -126,64 +168,6 @@ static void MENU_DISPLAY_Render(void)
     atualiza_lcd((char*)menu_displayData.lcd);
 }
 
-// Tratar navegação no home
-static void MENU_DISPLAY_HandleHomeButtons(void)
-{
-    bool needRedraw = false;
-
-    if (btn_mais_event)
-    {
-        btn_mais_event = false;
-
-        if (menu_displayData.currentItem < 2)
-        {
-            menu_displayData.currentItem++;
-        }
-        else
-        {
-            menu_displayData.currentItem = 0;
-        }
-        needRedraw = true;
-    }
-
-    if (btn_menos_event)
-    {
-        btn_menos_event = false;
-
-        if (menu_displayData.currentItem > 0)
-        {
-            menu_displayData.currentItem--;
-        }
-        else
-        {
-            menu_displayData.currentItem = 2;
-        }
-        needRedraw = true;
-    }
-
-    if (btn_enter_event)
-    {
-        btn_enter_event = false;
-        // Aqui você poderia mudar de tela,
-        // ex: MENU_SCREEN_PARAM1, MENU_SCREEN_PARAM2, etc.
-        // Por enquanto só marca que precisa redesenhar (ou mostrar algo).
-        needRedraw = true;
-    }
-
-    if (btn_back_event)
-    {
-        btn_back_event = false;
-        // Exemplo: voltar para HOME ou outra tela
-        // Aqui já estamos no HOME, então pode ignorar ou usar p/ outra coisa
-        needRedraw = true;
-    }
-
-    if (needRedraw)
-    {
-        MENU_DISPLAY_DrawHome();
-        MENU_DISPLAY_Render();
-    }
-}
 /*******************************************************************************
   Function:
     void MENU_DISPLAY_Initialize ( void )
@@ -198,10 +182,24 @@ void MENU_DISPLAY_Initialize ( void )
     menu_displayData.currentScreen = MENU_SCREEN_HOME;
     menu_displayData.currentItem   = 0;
 
-    MENU_DISPLAY_ClearBuffer();
+    // cria fila de eventos
+    xButtonEventQueue = xQueueCreate(16, sizeof(BUTTON_EVENT));
+    configASSERT(xButtonEventQueue != NULL);
 
-    // Configura interrupções de tecla
+    g_stableMask = 0;
+    g_debounceCounter = 0;
+    memset((void*)g_holdMs, 0, sizeof(g_holdMs));
+    memset((void*)g_repeatActive, 0, sizeof(g_repeatActive));
+    
+    // *** REGISTRA O CALLBACK DO TIMER 3 ***
+    TMR3_CallbackRegister(TMR3_Callback, 0);
+
+    // Configura botões (CN) normalmente
     setup_switches();
+
+    // Configura TMR2 no Harmony para período de 1ms (mas NÃO precisa deixar startado)
+    TMR3_Stop();
+    TMR3_InterruptDisable();
 }
 
 void setup_switches()
@@ -215,64 +213,191 @@ void setup_switches()
     PINO_BTN_MAIS_InterruptEnable();
     PINO_BTN_MENOS_InterruptEnable();
 }
+
 void switch_handler(GPIO_PIN pin, uintptr_t context)
 {
-    // Aqui é importante ser bem rápido: só marca flags.
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    // Ajuste conforme sua lógica: se o botão é ativo em nível baixo ou alto.
-    // Vou assumir que "pressionado" = nível baixo (0).
-    if (pin == PINO_BTN_BACK_PIN)
+    // Inicia (ou mantém) o contador de debounce
+    g_debounceCounter = BTN_DEBOUNCE_MS;
+
+    // Zera contadores de hold para todos (vai começar de novo)
+    for (int i = 0; i < BTN_COUNT; i++)
     {
-        if (PINO_BTN_BACK_Get() == 0)
-            btn_back_event = true;
+        g_holdMs[i] = 0;
+        g_repeatActive[i] = false;
     }
-    else if (pin == PINO_BTN_ENTER_PIN)
-    {
-        if (PINO_BTN_ENTER_Get() == 0)
-            btn_enter_event = true;
-    }
-    else if (pin == PINO_BTN_MAIS_PIN)
-    {
-        if (PINO_BTN_MAIS_Get() == 0)
-            btn_mais_event = true;
-    }
-    else if (pin == PINO_BTN_MENOS_PIN)
-    {
-        if (PINO_BTN_MENOS_Get() == 0)
-            btn_menos_event = true;
-    }
-    /*
-    if(pin == PINO_BTN_BACK_PIN)
-    {
-        if(PINO_BTN_BACK_Get())
-            SINAL_TF_127V_Clear();
-        else
-            SINAL_TF_127V_Set();
-    }
-    else if(pin == PINO_BTN_ENTER_PIN)
-    {
-        if(PINO_BTN_ENTER_Get())
-            SINAL_TF_220V_Clear();
-        else
-            SINAL_TF_220V_Set();
-    }
-    else if(pin == PINO_BTN_MAIS_PIN)
-    {
-        if(PINO_BTN_MAIS_Get())
-            SINAL_HP_Clear();
-        else
-            SINAL_HP_Set();
-    }
-    else if(pin == PINO_BTN_MENOS_PIN)
-    {
-        if(PINO_BTN_MENOS_Get())
-            SINAL_GBT_Clear();
-        else
-            SINAL_GBT_Set();
-    }
-    */
+
+    // Garante que o Timer de 1ms está rodando
+    TMR3_Start();            // ou TMRx_Start conforme Harmony
+    TMR3_InterruptEnable();  // se não estiver habilitado
+
+    // Se você usar alguma API FreeRTOS aqui, finalize:
+    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
+void TMR3_Callback(uint32_t status, uintptr_t context)  // ou TMR2_InterruptHandler(void)
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    // 1) Tratamento de debounce
+    if (g_debounceCounter > 0)
+    {
+        g_debounceCounter--;
+
+        if (g_debounceCounter == 0)
+        {
+            // Momento de "congelar" o estado e comparar com o estável
+            uint8_t newMask = BUTTONS_ReadRawMask();
+            uint8_t diff    = newMask ^ g_stableMask; // bits que mudaram
+
+            for (int i = 0; i < BTN_COUNT; i++)
+            {
+                uint8_t bit = (1 << i);
+
+                if (diff & bit)
+                {
+                    if (newMask & bit)
+                    {
+                        // botão i agora está pressionado (debounced)
+                        g_stableMask |= bit;
+                        g_holdMs[i] = 0;
+                        g_repeatActive[i] = false;
+
+                        BUTTON_SendEventFromISR((BUTTON_ID)i, BTN_EVENT_PRESS,
+                                                &xHigherPriorityTaskWoken);
+                    }
+                    else
+                    {
+                        // botão i agora está solto
+                        g_stableMask &= ~bit;
+                        g_holdMs[i] = 0;
+                        g_repeatActive[i] = false;
+
+                        BUTTON_SendEventFromISR((BUTTON_ID)i, BTN_EVENT_RELEASE,
+                                                &xHigherPriorityTaskWoken);
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        // 2) Debounce já terminou. Se existir botão pressionado, trata hold/repeat.
+
+        if (g_stableMask != 0)
+        {
+            for (int i = 0; i < BTN_COUNT; i++)
+            {
+                uint8_t bit = (1 << i);
+
+                if (g_stableMask & bit)
+                {
+                    g_holdMs[i]++;
+
+                    if (!g_repeatActive[i])
+                    {
+                        if (g_holdMs[i] >= BTN_LONGPRESS_MS)
+                        {
+                            g_repeatActive[i] = true;
+                            g_holdMs[i] = 0;
+
+                            // opcional: já manda o primeiro repeat aqui
+                            BUTTON_SendEventFromISR((BUTTON_ID)i, BTN_EVENT_REPEAT,
+                                                    &xHigherPriorityTaskWoken);
+                        }
+                    }
+                    else
+                    {
+                        if (g_holdMs[i] >= BTN_REPEAT_MS)
+                        {
+                            g_holdMs[i] = 0;
+                            BUTTON_SendEventFromISR((BUTTON_ID)i, BTN_EVENT_REPEAT,
+                                                    &xHigherPriorityTaskWoken);
+                        }
+                    }
+                }
+                else
+                {
+                    g_holdMs[i] = 0;
+                    g_repeatActive[i] = false;
+                }
+            }
+        }
+        else
+        {
+            // NENHUM botão está pressionado e não tem debounce rolando:
+            // podemos parar o timer para não gastar CPU à toa.
+            TMR3_InterruptDisable();
+            TMR3_Stop();
+        }
+    }
+
+    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+}
+
+
+static void MENU_DISPLAY_HandleButtonEvent(const BUTTON_EVENT *ev)
+{
+    bool needRedraw = false;
+
+    switch (ev->id)
+    {
+        case BTN_MAIS:
+            if (ev->type == BTN_EVENT_PRESS || ev->type == BTN_EVENT_REPEAT)
+            {
+                // navega para baixo
+                if (menu_displayData.currentItem < 2)
+                    menu_displayData.currentItem++;
+                else
+                    menu_displayData.currentItem = 0;
+
+                needRedraw = true;
+            }
+            break;
+
+        case BTN_MENOS:
+            if (ev->type == BTN_EVENT_PRESS || ev->type == BTN_EVENT_REPEAT)
+            {
+                // navega para cima
+                if (menu_displayData.currentItem > 0)
+                    menu_displayData.currentItem--;
+                else
+                    menu_displayData.currentItem = 2;
+
+                needRedraw = true;
+            }
+            break;
+
+        case BTN_ENTER:
+            if (ev->type == BTN_EVENT_PRESS)
+            {
+                // entra na opção
+                needRedraw = true;
+            }
+            break;
+
+        case BTN_BACK:
+            if (ev->type == BTN_EVENT_PRESS)
+            {
+                // volta
+                needRedraw = true;
+            }
+            break;
+
+        case BTN_COUNT:
+        default:
+            break;
+    }
+
+    if (needRedraw)
+    {
+        MENU_DISPLAY_DrawHome();
+        MENU_DISPLAY_Render();
+    }
+}
+
+//extern TimerHandle_t xDebounceTimer;  // se estiver em outro arquivo, ou deixe como static se estiver no mesmo
 
 /******************************************************************************
   Function:
@@ -284,11 +409,10 @@ void switch_handler(GPIO_PIN pin, uintptr_t context)
 
 void MENU_DISPLAY_Tasks ( void )
 {
-    switch ( menu_displayData.state )
+    switch (menu_displayData.state)
     {
         case MENU_DISPLAY_STATE_INIT:
         {
-            // Desenha a tela inicial e envia ao display
             MENU_DISPLAY_DrawHome();
             MENU_DISPLAY_Render();
 
@@ -298,33 +422,18 @@ void MENU_DISPLAY_Tasks ( void )
 
         case MENU_DISPLAY_STATE_SERVICE_TASKS:
         {
-            // Aqui tratamos eventos de botão e atualizamos o LCD
-            switch (menu_displayData.currentScreen)
+            BUTTON_EVENT ev;
+            // Bloqueia um pouco esperando eventos
+            if (xQueueReceive(xButtonEventQueue, &ev, portMAX_DELAY) == pdPASS)
             {
-                case MENU_SCREEN_HOME:
-                    MENU_DISPLAY_HandleHomeButtons();
-                    break;
-
-                case MENU_SCREEN_PARAM1:
-                    // Aqui você implementa as telas adicionais
-                    break;
-
-                case MENU_SCREEN_PARAM2:
-                    // Outra tela
-                    break;
-
-                default:
-                    break;
+                MENU_DISPLAY_HandleButtonEvent(&ev);
             }
             break;
         }
 
         default:
-        {
-            // Estado inesperado ? poderia resetar o menu
             menu_displayData.state = MENU_DISPLAY_STATE_INIT;
             break;
-        }
     }
 }
 

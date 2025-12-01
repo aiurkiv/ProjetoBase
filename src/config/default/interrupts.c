@@ -68,6 +68,7 @@
 // *****************************************************************************
 // *****************************************************************************
 void CORE_TIMER_Handler (void);
+void TIMER_3_Handler (void);
 void USB_1_Handler (void);
 void CHANGE_NOTICE_A_Handler (void);
 void CHANGE_NOTICE_B_Handler (void);
@@ -88,6 +89,11 @@ void __attribute__((used)) CORE_TIMER_Handler (void)
 }
 
 
+
+void __attribute__((used)) TIMER_3_Handler (void)
+{
+    TIMER_3_InterruptHandler();
+}
 
 void __attribute__((used)) USB_1_Handler (void)
 {

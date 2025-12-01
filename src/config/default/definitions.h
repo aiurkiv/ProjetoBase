@@ -53,10 +53,11 @@
 #include "peripheral/evic/plib_evic.h"
 #include "driver/usb/usbfs/drv_usbfs.h"
 #include "system/time/sys_time.h"
-#include "peripheral/coretimer/plib_coretimer.h"
 #include "usb/usb_chapter_9.h"
 #include "usb/usb_host.h"
+#include "peripheral/coretimer/plib_coretimer.h"
 #include "peripheral/uart/plib_uart2.h"
+#include "peripheral/tmr/plib_tmr3.h"
 #include "system/console/sys_console.h"
 #include "system/console/src/sys_console_uart_definitions.h"
 #include "usb/usb_host_hid.h"
@@ -205,9 +206,9 @@ typedef struct
     SYS_MODULE_OBJ  drvUSBFSObject0;
 
 
-    SYS_MODULE_OBJ  sysTime;
     SYS_MODULE_OBJ  sysDebug;
 
+    SYS_MODULE_OBJ  sysTime;
     SYS_MODULE_OBJ  usbHostObject0;
 
     SYS_MODULE_OBJ  sysConsole0;

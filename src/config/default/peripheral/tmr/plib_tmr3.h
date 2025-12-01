@@ -1,22 +1,25 @@
 /*******************************************************************************
- System Interrupts File
+  Data Type definition of Timer PLIB
 
   Company:
     Microchip Technology Inc.
 
   File Name:
-    interrupt.h
+    plib_tmr3.h
 
   Summary:
-    Interrupt vectors mapping
+    Data Type definition of the Timer Peripheral Interface Plib.
 
   Description:
-    This file contains declarations of device vectors used by Harmony 3
- *******************************************************************************/
+    This file defines the Data Types for the Timer Plib.
 
-// DOM-IGNORE-BEGIN
+  Remarks:
+    None.
+
+*******************************************************************************/
+
 /*******************************************************************************
-* Copyright (C) 2025 Microchip Technology Inc. and its subsidiaries.
+* Copyright (C) 2019 Microchip Technology Inc. and its subsidiaries.
 *
 * Subject to your compliance with these terms, you may use Microchip software
 * and any derivatives exclusively with Microchip products. It is your
@@ -36,36 +39,64 @@
 * FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN
 * ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
 * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
- *******************************************************************************/
+*******************************************************************************/
+
+#ifndef PLIB_TMR3_H
+#define PLIB_TMR3_H
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "device.h"
+#include "plib_tmr_common.h"
+
+// DOM-IGNORE-BEGIN
+#ifdef __cplusplus  // Provide C++ Compatibility
+
+    extern "C" {
+
+#endif
 // DOM-IGNORE-END
 
-#ifndef INTERRUPTS_H
-#define INTERRUPTS_H
+// *****************************************************************************
+// *****************************************************************************
+// Section: Data Types
+// *****************************************************************************
+// *****************************************************************************
 
 // *****************************************************************************
 // *****************************************************************************
-// Section: Included Files
+// Section: Interface Routines
 // *****************************************************************************
 // *****************************************************************************
-#include <stdint.h>
-
-
 
 // *****************************************************************************
-// *****************************************************************************
-// Section: Handler Routines
-// *****************************************************************************
-// *****************************************************************************
-void CORE_TIMER_InterruptHandler( void );
-void TIMER_3_InterruptHandler( void );
-void DRV_USBFS_USB1_Handler( void );
-void CHANGE_NOTICE_A_InterruptHandler( void );
-void CHANGE_NOTICE_B_InterruptHandler( void );
-void CHANGE_NOTICE_G_InterruptHandler( void );
-void UART2_FAULT_InterruptHandler( void );
-void UART2_RX_InterruptHandler( void );
-void UART2_TX_InterruptHandler( void );
+void TMR3_Initialize(void);
+
+void TMR3_Start(void);
+
+void TMR3_Stop(void);
+
+void TMR3_PeriodSet(uint16_t period);
+
+uint16_t TMR3_PeriodGet(void);
+
+uint16_t TMR3_CounterGet(void);
+
+uint32_t TMR3_FrequencyGet(void);
+
+void TMR3_InterruptEnable(void);
+
+void TMR3_InterruptDisable(void);
+
+void TMR3_CallbackRegister( TMR_CALLBACK callback_fn, uintptr_t context );
 
 
+// DOM-IGNORE-BEGIN
+#ifdef __cplusplus  // Provide C++ Compatibility
 
-#endif // INTERRUPTS_H
+    }
+#endif
+// DOM-IGNORE-END
+
+#endif /* PLIB_TMR3_H */

@@ -84,11 +84,13 @@ build/default/debug/_ext/1171490990/interrupts.o: \
  ../src/config/default/system/time/sys_time.h \
  ../src/config/default/system/system.h \
  ../src/config/default/system/time/sys_time_definitions.h \
- ../src/config/default/peripheral/coretimer/plib_coretimer.h \
  ../src/config/default/usb/usb_chapter_9.h \
  ../src/config/default/usb/usb_host.h \
+ ../src/config/default/peripheral/coretimer/plib_coretimer.h \
  ../src/config/default/peripheral/uart/plib_uart2.h \
  ../src/config/default/peripheral/uart/plib_uart_common.h \
+ ../src/config/default/peripheral/tmr/plib_tmr3.h \
+ ../src/config/default/peripheral/tmr/plib_tmr_common.h \
  ../src/config/default/system/console/sys_console.h \
  ../src/config/default/driver/driver.h \
  ../src/config/default/system/console/src/sys_console_local.h \
@@ -293,15 +295,19 @@ build/default/debug/_ext/1171490990/interrupts.o: \
 
 ../src/config/default/system/time/sys_time_definitions.h:
 
-../src/config/default/peripheral/coretimer/plib_coretimer.h:
-
 ../src/config/default/usb/usb_chapter_9.h:
 
 ../src/config/default/usb/usb_host.h:
 
+../src/config/default/peripheral/coretimer/plib_coretimer.h:
+
 ../src/config/default/peripheral/uart/plib_uart2.h:
 
 ../src/config/default/peripheral/uart/plib_uart_common.h:
+
+../src/config/default/peripheral/tmr/plib_tmr3.h:
+
+../src/config/default/peripheral/tmr/plib_tmr_common.h:
 
 ../src/config/default/system/console/sys_console.h:
 

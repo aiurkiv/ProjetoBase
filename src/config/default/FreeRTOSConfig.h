@@ -412,7 +412,7 @@
 #define INCLUDE_xQueueGetMutexHolder            0
 #define INCLUDE_xSemaphoreGetMutexHolder        0
 #define INCLUDE_uxTaskGetStackHighWaterMark2    0
-#define INCLUDE_xTaskResumeFromISR              0
+#define INCLUDE_xTaskResumeFromISR              1
 
 
 
