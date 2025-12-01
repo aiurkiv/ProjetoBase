@@ -46,6 +46,11 @@
 
 
 
+/* Array to store callback objects of each configured interrupt */
+static volatile GPIO_PIN_CALLBACK_OBJ portPinCbObj[4];
+
+/* Array to store number of interrupts in each PORT Channel + previous interrupt count */
+static uint8_t portNumCb[7 + 1] = { 0, 1, 3, 3, 3, 3, 3, 4, };
 
 /******************************************************************************
   Function:
@@ -61,15 +66,29 @@ void GPIO_Initialize ( void )
 {
 
     /* PORTA Initialization */
+    ODCASET = 0x400U; /* Open Drain Enable */
     LATA = 0x0U; /* Initial Latch Value */
     TRISACLR = 0x510U; /* Direction Control */
-    ANSELACLR = 0x110U; /* Digital Mode Enable */
+    ANSELACLR = 0x1110U; /* Digital Mode Enable */
+    CNPUASET = 0x1000U; /* Pull-Up Enable */
+
+    /* Change Notice Enable */
+    CNCONASET = _CNCONA_ON_MASK;
+    PORTA;
+    IEC1SET = _IEC1_CNAIE_MASK;
     /* PORTB Initialization */
+    ODCBSET = 0x3000U; /* Open Drain Enable */
     LATB = 0x0U; /* Initial Latch Value */
     TRISBCLR = 0x3090U; /* Direction Control */
-    ANSELBCLR = 0x284U; /* Digital Mode Enable */
-    CNPUBSET = 0x4U; /* Pull-Up Enable */
+    ANSELBCLR = 0x28cU; /* Digital Mode Enable */
+    CNPUBSET = 0xcU; /* Pull-Up Enable */
+
+    /* Change Notice Enable */
+    CNCONBSET = _CNCONB_ON_MASK;
+    PORTB;
+    IEC1SET = _IEC1_CNBIE_MASK;
     /* PORTC Initialization */
+    ODCCSET = 0x200U; /* Open Drain Enable */
     LATC = 0x0U; /* Initial Latch Value */
     TRISCCLR = 0x200U; /* Direction Control */
     /* PORTD Initialization */
@@ -79,6 +98,13 @@ void GPIO_Initialize ( void )
     ANSELECLR = 0xf000U; /* Digital Mode Enable */
     /* PORTF Initialization */
     /* PORTG Initialization */
+    ANSELGCLR = 0x200U; /* Digital Mode Enable */
+    CNPUGSET = 0x200U; /* Pull-Up Enable */
+
+    /* Change Notice Enable */
+    CNCONGSET = _CNCONG_ON_MASK;
+    PORTG;
+    IEC1SET = _IEC1_CNGIE_MASK;
 
     /* Unlock system for PPS configuration */
     SYSKEY = 0x00000000U;
@@ -97,6 +123,20 @@ void GPIO_Initialize ( void )
 
     SYSKEY = 0x00000000U;
 
+    uint32_t i;
+    /* Initialize Interrupt Pin data structures */
+    portPinCbObj[3 + 0].pin = GPIO_PIN_RG9;
+    
+    portPinCbObj[0 + 0].pin = GPIO_PIN_RA12;
+    
+    portPinCbObj[1 + 0].pin = GPIO_PIN_RB2;
+    
+    portPinCbObj[1 + 1].pin = GPIO_PIN_RB3;
+    
+    for(i=0U; i<4U; i++)
+    {
+        portPinCbObj[i].callback = NULL;
+    }
 }
 
 // *****************************************************************************
@@ -237,7 +277,263 @@ void GPIO_PortOutputEnable(GPIO_PORT port, uint32_t mask)
     *(volatile uint32_t *)(&TRISACLR + (port * 0x40U)) = mask;
 }
 
+// *****************************************************************************
+/* Function:
+    void GPIO_PortInterruptEnable(GPIO_PORT port, uint32_t mask)
 
+  Summary:
+    Enables IO interrupt on selected IO pins of a port.
+
+  Remarks:
+    See plib_gpio.h for more details.
+*/
+void GPIO_PortInterruptEnable(GPIO_PORT port, uint32_t mask)
+{
+    *(volatile uint32_t *)(&CNENASET + (port * 0x40U)) = mask;
+}
+
+// *****************************************************************************
+/* Function:
+    void GPIO_PortInterruptDisable(GPIO_PORT port, uint32_t mask)
+
+  Summary:
+    Disables IO interrupt on selected IO pins of a port.
+
+  Remarks:
+    See plib_gpio.h for more details.
+*/
+void GPIO_PortInterruptDisable(GPIO_PORT port, uint32_t mask)
+{
+    *(volatile uint32_t *)(&CNENACLR + (port * 0x40U)) = mask;
+}
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: GPIO APIs which operates on one pin at a time
+// *****************************************************************************
+// *****************************************************************************
+
+// *****************************************************************************
+/* Function:
+    void GPIO_PinIntEnable(GPIO_PIN pin, GPIO_INTERRUPT_STYLE style)
+
+  Summary:
+    Enables IO interrupt of particular style on selected IO pins of a port.
+
+  Remarks:
+    See plib_gpio.h for more details.
+*/
+void GPIO_PinIntEnable(GPIO_PIN pin, GPIO_INTERRUPT_STYLE style)
+{
+    GPIO_PORT port;
+    uint32_t mask;
+
+    port = (GPIO_PORT)(pin>>4U);
+    mask =  0x1UL << (pin & 0xFU);
+
+    if (style == GPIO_INTERRUPT_ON_MISMATCH)
+    {
+        *(volatile uint32_t *)(&CNENASET + (port * 0x40U)) = mask;
+    }
+    else if (style == GPIO_INTERRUPT_ON_RISING_EDGE)
+    {
+        *(volatile uint32_t *)(&CNENASET + (port * 0x40U)) = mask;
+        *(volatile uint32_t *)(&CNNEACLR + (port * 0x40U)) = mask;
+    }
+    else if (style == GPIO_INTERRUPT_ON_FALLING_EDGE)
+    {
+        *(volatile uint32_t *)(&CNENACLR + (port * 0x40U)) = mask;
+        *(volatile uint32_t *)(&CNNEASET + (port * 0x40U)) = mask;
+    }
+    else if (style == GPIO_INTERRUPT_ON_BOTH_EDGES)
+    {
+        *(volatile uint32_t *)(&CNENASET + (port * 0x40U)) = mask;
+        *(volatile uint32_t *)(&CNNEASET + (port * 0x40U)) = mask;
+    }
+    else
+    {
+        /* Nothing to process */
+    }
+}
+
+// *****************************************************************************
+/* Function:
+    void GPIO_PinIntDisable(GPIO_PIN pin)
+
+  Summary:
+    Disables IO interrupt on selected IO pins of a port.
+
+  Remarks:
+    See plib_gpio.h for more details.
+*/
+void GPIO_PinIntDisable(GPIO_PIN pin)
+{
+    GPIO_PORT port;
+    uint32_t mask;
+
+    port = (GPIO_PORT)(pin>>4U);
+    mask =  0x1UL << (pin & 0xFU);
+
+    *(volatile uint32_t *)(&CNENACLR + (port * 0x40U)) = mask;
+    *(volatile uint32_t *)(&CNNEACLR + (port * 0x40U)) = mask;
+}
+// *****************************************************************************
+/* Function:
+    bool GPIO_PinInterruptCallbackRegister(
+        GPIO_PIN pin,
+        const GPIO_PIN_CALLBACK callback,
+        uintptr_t context
+    );
+
+  Summary:
+    Allows application to register callback for configured pin.
+
+  Remarks:
+    See plib_gpio.h for more details.
+*/
+bool GPIO_PinInterruptCallbackRegister(
+    GPIO_PIN pin,
+    const GPIO_PIN_CALLBACK callback,
+    uintptr_t context
+)
+{
+    uint8_t i;
+    uint8_t portIndex;
+
+    portIndex = (uint8_t)(pin >> 4U);
+
+    for(i = portNumCb[portIndex]; i < portNumCb[portIndex +1]; i++)
+    {
+        if (portPinCbObj[i].pin == pin)
+        {
+            portPinCbObj[i].callback = callback;
+            portPinCbObj[i].context  = context;
+            return true;
+        }
+    }
+    return false;
+}
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Local Function Implementation
+// *****************************************************************************
+// *****************************************************************************
+
+
+// *****************************************************************************
+/* Function:
+    void CHANGE_NOTICE_A_InterruptHandler(void)
+
+  Summary:
+    Interrupt Handler for change notice interrupt for channel A.
+
+  Remarks:
+    It is an internal function called from ISR, user should not call it directly.
+*/
+    
+void __attribute__((used)) CHANGE_NOTICE_A_InterruptHandler(void)
+{
+    uint8_t i;
+    uint32_t status;
+    GPIO_PIN pin;
+    uintptr_t context;
+
+    status  = CNSTATA;
+    status &= CNENA;
+
+    PORTA;
+    IFS1CLR = _IFS1_CNAIF_MASK;
+
+    /* Check pending events and call callback if registered */
+    for(i = 0; i < 1; i++)
+    {
+        pin = portPinCbObj[i].pin;
+
+        if((portPinCbObj[i].callback != NULL) && ((status & ((uint32_t)1U << (pin & 0xFU))) != 0U))
+        {
+            context = portPinCbObj[i].context;
+
+            portPinCbObj[i].callback (pin, context);
+        }
+    }
+}
+
+// *****************************************************************************
+/* Function:
+    void CHANGE_NOTICE_B_InterruptHandler(void)
+
+  Summary:
+    Interrupt Handler for change notice interrupt for channel B.
+
+  Remarks:
+    It is an internal function called from ISR, user should not call it directly.
+*/
+    
+void __attribute__((used)) CHANGE_NOTICE_B_InterruptHandler(void)
+{
+    uint8_t i;
+    uint32_t status;
+    GPIO_PIN pin;
+    uintptr_t context;
+
+    status  = CNSTATB;
+    status &= CNENB;
+
+    PORTB;
+    IFS1CLR = _IFS1_CNBIF_MASK;
+
+    /* Check pending events and call callback if registered */
+    for(i = 1; i < 3; i++)
+    {
+        pin = portPinCbObj[i].pin;
+
+        if((portPinCbObj[i].callback != NULL) && ((status & ((uint32_t)1U << (pin & 0xFU))) != 0U))
+        {
+            context = portPinCbObj[i].context;
+
+            portPinCbObj[i].callback (pin, context);
+        }
+    }
+}
+
+// *****************************************************************************
+/* Function:
+    void CHANGE_NOTICE_G_InterruptHandler(void)
+
+  Summary:
+    Interrupt Handler for change notice interrupt for channel G.
+
+  Remarks:
+    It is an internal function called from ISR, user should not call it directly.
+*/
+    
+void __attribute__((used)) CHANGE_NOTICE_G_InterruptHandler(void)
+{
+    uint8_t i;
+    uint32_t status;
+    GPIO_PIN pin;
+    uintptr_t context;
+
+    status  = CNSTATG;
+    status &= CNENG;
+
+    PORTG;
+    IFS1CLR = _IFS1_CNGIF_MASK;
+
+    /* Check pending events and call callback if registered */
+    for(i = 3; i < 4; i++)
+    {
+        pin = portPinCbObj[i].pin;
+
+        if((portPinCbObj[i].callback != NULL) && ((status & ((uint32_t)1U << (pin & 0xFU))) != 0U))
+        {
+            context = portPinCbObj[i].context;
+
+            portPinCbObj[i].callback (pin, context);
+        }
+    }
+}
 
 
 /*******************************************************************************

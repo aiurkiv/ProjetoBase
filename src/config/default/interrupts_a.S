@@ -88,6 +88,60 @@ IntVectorUSB_1_Handler:
     nop
     portRESTORE_CONTEXT
     .end   IntVectorUSB_1_Handler
+    .extern  CHANGE_NOTICE_A_Handler
+
+    .section   .vector_44,code, keep
+    .equ     __vector_dispatch_44, IntVectorCHANGE_NOTICE_A_Handler
+    .global  __vector_dispatch_44
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorCHANGE_NOTICE_A_Handler
+
+IntVectorCHANGE_NOTICE_A_Handler:
+    portSAVE_CONTEXT
+    la    s6,  CHANGE_NOTICE_A_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorCHANGE_NOTICE_A_Handler
+    .extern  CHANGE_NOTICE_B_Handler
+
+    .section   .vector_45,code, keep
+    .equ     __vector_dispatch_45, IntVectorCHANGE_NOTICE_B_Handler
+    .global  __vector_dispatch_45
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorCHANGE_NOTICE_B_Handler
+
+IntVectorCHANGE_NOTICE_B_Handler:
+    portSAVE_CONTEXT
+    la    s6,  CHANGE_NOTICE_B_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorCHANGE_NOTICE_B_Handler
+    .extern  CHANGE_NOTICE_G_Handler
+
+    .section   .vector_50,code, keep
+    .equ     __vector_dispatch_50, IntVectorCHANGE_NOTICE_G_Handler
+    .global  __vector_dispatch_50
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorCHANGE_NOTICE_G_Handler
+
+IntVectorCHANGE_NOTICE_G_Handler:
+    portSAVE_CONTEXT
+    la    s6,  CHANGE_NOTICE_G_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorCHANGE_NOTICE_G_Handler
     .extern  UART2_FAULT_Handler
 
     .section   .vector_56,code, keep

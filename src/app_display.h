@@ -32,6 +32,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "configuration.h"
+#include "definitions.h"
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -46,6 +47,11 @@ extern "C" {
 // Section: Type Definitions
 // *****************************************************************************
 // *****************************************************************************
+// Macro para executar um NOP
+#define DELAY_25NS()		_nop() 
+#define DELAY_100NS()		_nop() 
+#define DELAY_200NS()		_nop() ;_nop() ;_nop() ;_nop() ;_nop()
+#define DELAY_250NS()		_nop() ;_nop() ;_nop() ;_nop() ;_nop()  ;_nop()
 
 // *****************************************************************************
 /* Application states
@@ -62,9 +68,7 @@ typedef enum
 {
     /* Application's state machine's initial state. */
     APP_DISPLAY_STATE_INIT=0,
-    APP_DISPLAY_STATE_SERVICE_TASKS,
-    /* TODO: Define states used by the application state machine. */
-
+    APP_DISPLAY_STATE_ATUALIZA_LCD,
 } APP_DISPLAY_STATES;
 
 
@@ -85,8 +89,8 @@ typedef struct
 {
     /* The application's current state */
     APP_DISPLAY_STATES state;
-
-    /* TODO: Define any additional data used by the application. */
+    
+    char lcd[4][21];
 
 } APP_DISPLAY_DATA;
 
@@ -169,6 +173,8 @@ void APP_DISPLAY_Initialize ( void );
  */
 
 void APP_DISPLAY_Tasks( void );
+void atualiza_lcd(char* lcd);
+void reconfigura_lcd();
 
 //DOM-IGNORE-BEGIN
 #ifdef __cplusplus

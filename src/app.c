@@ -28,6 +28,10 @@
 // *****************************************************************************
 
 #include "app.h"
+#include "definitions.h"
+#include "sys_tasks.h"
+#include <stdio.h>
+#include <string.h>
 
 // *****************************************************************************
 // *****************************************************************************
@@ -109,11 +113,22 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
+    char display[4][20];
+    int cont = 0;
 
-    /* Check the application's current state. */
+    while(true)
+    {
+        memset(display, ' ', sizeof(display));
+        sprintf(display[0], "%d %d", cont, PINO_BTN_MENOS_Get());
+        //atualiza_lcd((char*)display);
+        cont++;
+
+        //APP_Tasks();
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Atualiza a cada 1 segundo
+    }
+    /*
     switch ( appData.state )
     {
-        /* Application's initial state. */
         case APP_STATE_INIT:
         {
             bool appInitialized = true;
@@ -132,17 +147,12 @@ void APP_Tasks ( void )
 
             break;
         }
-
-        /* TODO: implement your application state machine.*/
-
-
-        /* The default state should never be executed. */
         default:
         {
-            /* TODO: Handle error in application's state machine. */
             break;
         }
     }
+    */
 }
 
 

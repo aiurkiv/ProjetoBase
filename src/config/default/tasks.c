@@ -60,10 +60,12 @@
 // Section: RTOS "Tasks" Routine
 // *****************************************************************************
 // *****************************************************************************
-static void F_USB_HOST_Tasks(  void *pvParameters  )
+void F_USB_HOST_Tasks(  void *pvParameters  )
 {
     while(true)
     {
+        /* USB FS Driver Task Routine */ 
+        DRV_USBFS_Tasks(sysObj.drvUSBFSObject0);
         /* USB Host layer tasks routine */ 
         USB_HOST_Tasks(sysObj.usbHostObject0);
         vTaskDelay(10U / portTICK_PERIOD_MS);
@@ -76,22 +78,22 @@ TaskHandle_t xAPP_Tasks;
 
 
 
-static void lAPP_Tasks(  void *pvParameters  )
+void lAPP_Tasks(  void *pvParameters  )
 {   
-    while(true)
+    //while(true)
     {
         APP_Tasks();
     }
 }
 
 /* Handle for the APP_DISPLAY_Tasks. */
-TaskHandle_t xAPP_DISPLAY_Tasks;
+//TaskHandle_t xAPP_DISPLAY_Tasks;
 
 
 
 static void lAPP_DISPLAY_Tasks(  void *pvParameters  )
 {   
-    while(true)
+    //while(true)
     {
         APP_DISPLAY_Tasks();
     }
@@ -107,6 +109,7 @@ static void lAPP_USB_Tasks(  void *pvParameters  )
     while(true)
     {
         APP_USB_Tasks();
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Atualiza a cada 1 segundo *** testes
     }
 }
 

@@ -62,6 +62,30 @@
 // *****************************************************************************
 
 
+/*** Macros for PINO_BTN_BACK pin ***/
+#define PINO_BTN_BACK_Set()               (LATGSET = (1U<<9))
+#define PINO_BTN_BACK_Clear()             (LATGCLR = (1U<<9))
+#define PINO_BTN_BACK_Toggle()            (LATGINV= (1U<<9))
+#define PINO_BTN_BACK_OutputEnable()      (TRISGCLR = (1U<<9))
+#define PINO_BTN_BACK_InputEnable()       (TRISGSET = (1U<<9))
+#define PINO_BTN_BACK_Get()               ((PORTG >> 9) & 0x1U)
+#define PINO_BTN_BACK_GetLatch()          ((LATG >> 9) & 0x1U)
+#define PINO_BTN_BACK_PIN                  GPIO_PIN_RG9
+#define PINO_BTN_BACK_InterruptEnable()   (CNENGSET = (1U<<9))
+#define PINO_BTN_BACK_InterruptDisable()  (CNENGCLR = (1U<<9))
+
+/*** Macros for PINO_BTN_ENTER pin ***/
+#define PINO_BTN_ENTER_Set()               (LATASET = (1U<<12))
+#define PINO_BTN_ENTER_Clear()             (LATACLR = (1U<<12))
+#define PINO_BTN_ENTER_Toggle()            (LATAINV= (1U<<12))
+#define PINO_BTN_ENTER_OutputEnable()      (TRISACLR = (1U<<12))
+#define PINO_BTN_ENTER_InputEnable()       (TRISASET = (1U<<12))
+#define PINO_BTN_ENTER_Get()               ((PORTA >> 12) & 0x1U)
+#define PINO_BTN_ENTER_GetLatch()          ((LATA >> 12) & 0x1U)
+#define PINO_BTN_ENTER_PIN                  GPIO_PIN_RA12
+#define PINO_BTN_ENTER_InterruptEnable()   (CNENASET = (1U<<12))
+#define PINO_BTN_ENTER_InterruptDisable()  (CNENACLR = (1U<<12))
+
 /*** Macros for PINO_BTN_MENOS pin ***/
 #define PINO_BTN_MENOS_Set()               (LATBSET = (1U<<2))
 #define PINO_BTN_MENOS_Clear()             (LATBCLR = (1U<<2))
@@ -71,6 +95,20 @@
 #define PINO_BTN_MENOS_Get()               ((PORTB >> 2) & 0x1U)
 #define PINO_BTN_MENOS_GetLatch()          ((LATB >> 2) & 0x1U)
 #define PINO_BTN_MENOS_PIN                  GPIO_PIN_RB2
+#define PINO_BTN_MENOS_InterruptEnable()   (CNENBSET = (1U<<2))
+#define PINO_BTN_MENOS_InterruptDisable()  (CNENBCLR = (1U<<2))
+
+/*** Macros for PINO_BTN_MAIS pin ***/
+#define PINO_BTN_MAIS_Set()               (LATBSET = (1U<<3))
+#define PINO_BTN_MAIS_Clear()             (LATBCLR = (1U<<3))
+#define PINO_BTN_MAIS_Toggle()            (LATBINV= (1U<<3))
+#define PINO_BTN_MAIS_OutputEnable()      (TRISBCLR = (1U<<3))
+#define PINO_BTN_MAIS_InputEnable()       (TRISBSET = (1U<<3))
+#define PINO_BTN_MAIS_Get()               ((PORTB >> 3) & 0x1U)
+#define PINO_BTN_MAIS_GetLatch()          ((LATB >> 3) & 0x1U)
+#define PINO_BTN_MAIS_PIN                  GPIO_PIN_RB3
+#define PINO_BTN_MAIS_InterruptEnable()   (CNENBSET = (1U<<3))
+#define PINO_BTN_MAIS_InterruptDisable()  (CNENBCLR = (1U<<3))
 
 /*** Macros for PINO_LCD_RS pin ***/
 #define PINO_LCD_RS_Set()               (LATESET = (1U<<12))
@@ -81,6 +119,7 @@
 #define PINO_LCD_RS_Get()               ((PORTE >> 12) & 0x1U)
 #define PINO_LCD_RS_GetLatch()          ((LATE >> 12) & 0x1U)
 #define PINO_LCD_RS_PIN                  GPIO_PIN_RE12
+#define PINO_LCD_RS                     LATEbits.LATE12
 
 /*** Macros for PINO_LCD_RW pin ***/
 #define PINO_LCD_RW_Set()               (LATESET = (1U<<13))
@@ -91,6 +130,7 @@
 #define PINO_LCD_RW_Get()               ((PORTE >> 13) & 0x1U)
 #define PINO_LCD_RW_GetLatch()          ((LATE >> 13) & 0x1U)
 #define PINO_LCD_RW_PIN                  GPIO_PIN_RE13
+#define PINO_LCD_RW                     LATEbits.LATE13
 
 /*** Macros for PINO_LCD_EN pin ***/
 #define PINO_LCD_EN_Set()               (LATESET = (1U<<14))
@@ -101,6 +141,7 @@
 #define PINO_LCD_EN_Get()               ((PORTE >> 14) & 0x1U)
 #define PINO_LCD_EN_GetLatch()          ((LATE >> 14) & 0x1U)
 #define PINO_LCD_EN_PIN                  GPIO_PIN_RE14
+#define PINO_LCD_EN                     LATEbits.LATE14
 
 /*** Macros for PINO_LCD_D4 pin ***/
 #define PINO_LCD_D4_Set()               (LATESET = (1U<<15))
@@ -111,6 +152,7 @@
 #define PINO_LCD_D4_Get()               ((PORTE >> 15) & 0x1U)
 #define PINO_LCD_D4_GetLatch()          ((LATE >> 15) & 0x1U)
 #define PINO_LCD_D4_PIN                  GPIO_PIN_RE15
+#define PINO_LCD_D4_OUT                 LATEbits.LATE15
 
 /*** Macros for PINO_LCD_D5 pin ***/
 #define PINO_LCD_D5_Set()               (LATASET = (1U<<8))
@@ -121,6 +163,7 @@
 #define PINO_LCD_D5_Get()               ((PORTA >> 8) & 0x1U)
 #define PINO_LCD_D5_GetLatch()          ((LATA >> 8) & 0x1U)
 #define PINO_LCD_D5_PIN                  GPIO_PIN_RA8
+#define PINO_LCD_D5_OUT                 LATAbits.LATA8
 
 /*** Macros for PINO_LCD_D6 pin ***/
 #define PINO_LCD_D6_Set()               (LATBSET = (1U<<4))
@@ -131,6 +174,7 @@
 #define PINO_LCD_D6_Get()               ((PORTB >> 4) & 0x1U)
 #define PINO_LCD_D6_GetLatch()          ((LATB >> 4) & 0x1U)
 #define PINO_LCD_D6_PIN                  GPIO_PIN_RB4
+#define PINO_LCD_D6_OUT                 LATBbits.LATB4
 
 /*** Macros for PINO_LCD_D7 pin ***/
 #define PINO_LCD_D7_Set()               (LATASET = (1U<<4))
@@ -141,6 +185,7 @@
 #define PINO_LCD_D7_Get()               ((PORTA >> 4) & 0x1U)
 #define PINO_LCD_D7_GetLatch()          ((LATA >> 4) & 0x1U)
 #define PINO_LCD_D7_PIN                  GPIO_PIN_RA4
+#define PINO_LCD_D7_OUT                 LATAbits.LATA4
 
 /*** Macros for VBUSON pin ***/
 #define VBUSON_Set()               (LATBSET = (1U<<7))
@@ -307,6 +352,7 @@ typedef enum
 
 typedef uint32_t GPIO_PIN;
 
+typedef  void (*GPIO_PIN_CALLBACK) ( GPIO_PIN pin, uintptr_t context);
 
 void GPIO_Initialize(void);
 
@@ -331,6 +377,29 @@ void GPIO_PortToggle(GPIO_PORT port, uint32_t mask);
 void GPIO_PortInputEnable(GPIO_PORT port, uint32_t mask);
 
 void GPIO_PortOutputEnable(GPIO_PORT port, uint32_t mask);
+
+void GPIO_PortInterruptEnable(GPIO_PORT port, uint32_t mask);
+
+void GPIO_PortInterruptDisable(GPIO_PORT port, uint32_t mask);
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Local Data types and Prototypes
+// *****************************************************************************
+// *****************************************************************************
+
+typedef struct {
+
+    /* target pin */
+    GPIO_PIN                 pin;
+
+    /* Callback for event on target pin*/
+    GPIO_PIN_CALLBACK        callback;
+
+    /* Callback Context */
+    uintptr_t               context;
+
+} GPIO_PIN_CALLBACK_OBJ;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -379,6 +448,17 @@ static inline void GPIO_PinOutputEnable(GPIO_PIN pin)
     GPIO_PortOutputEnable((pin>>4U), (uint32_t)0x1U << (pin & 0xFU));
 }
 
+#define GPIO_PinInterruptEnable(pin)       GPIO_PinIntEnable(pin, GPIO_INTERRUPT_ON_MISMATCH)
+#define GPIO_PinInterruptDisable(pin)      GPIO_PinIntDisable(pin)
+
+void GPIO_PinIntEnable(GPIO_PIN pin, GPIO_INTERRUPT_STYLE style);
+void GPIO_PinIntDisable(GPIO_PIN pin);
+
+bool GPIO_PinInterruptCallbackRegister(
+    GPIO_PIN pin,
+    const   GPIO_PIN_CALLBACK callback,
+    uintptr_t context
+);
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility

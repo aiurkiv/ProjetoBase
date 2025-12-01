@@ -32,6 +32,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "configuration.h"
+#include "definitions.h"
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -67,6 +68,15 @@ typedef enum
 
 } MENU_DISPLAY_STATES;
 
+// Telas / estados simples de menu (exemplo)
+typedef enum
+{
+    MENU_SCREEN_HOME = 0,
+    MENU_SCREEN_PARAM1,
+    MENU_SCREEN_PARAM2,
+
+} MENU_SCREEN;
+
 
 // *****************************************************************************
 /* Application Data
@@ -85,10 +95,15 @@ typedef struct
 {
     /* The application's current state */
     MENU_DISPLAY_STATES state;
+    MENU_SCREEN currentScreen;
+    uint8_t currentItem;         // item selecionado na tela
 
-    /* TODO: Define any additional data used by the application. */
+    char lcd[4][20];             // buffer 4x20 próprio do menu
 
 } MENU_DISPLAY_DATA;
+
+// Exporta a estrutura global
+extern MENU_DISPLAY_DATA menu_displayData;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -137,6 +152,8 @@ typedef struct
 
 void MENU_DISPLAY_Initialize ( void );
 
+void setup_switches();
+void switch_handler(GPIO_PIN pin, uintptr_t context);
 
 /*******************************************************************************
   Function:

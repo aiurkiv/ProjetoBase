@@ -83,9 +83,9 @@ build/default/debug/_ext/1360937237/main.o: ../src/main.c \
  ../src/config/default/system/time/sys_time.h \
  ../src/config/default/system/system.h \
  ../src/config/default/system/time/sys_time_definitions.h \
+ ../src/config/default/peripheral/coretimer/plib_coretimer.h \
  ../src/config/default/usb/usb_chapter_9.h \
  ../src/config/default/usb/usb_host.h \
- ../src/config/default/peripheral/coretimer/plib_coretimer.h \
  ../src/config/default/peripheral/uart/plib_uart2.h \
  ../src/config/default/peripheral/uart/plib_uart_common.h \
  ../src/config/default/system/console/sys_console.h \
@@ -287,11 +287,11 @@ build/default/debug/_ext/1360937237/main.o: ../src/main.c \
 
 ../src/config/default/system/time/sys_time_definitions.h:
 
+../src/config/default/peripheral/coretimer/plib_coretimer.h:
+
 ../src/config/default/usb/usb_chapter_9.h:
 
 ../src/config/default/usb/usb_host.h:
-
-../src/config/default/peripheral/coretimer/plib_coretimer.h:
 
 ../src/config/default/peripheral/uart/plib_uart2.h:
 

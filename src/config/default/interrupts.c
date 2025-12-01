@@ -69,6 +69,9 @@
 // *****************************************************************************
 void CORE_TIMER_Handler (void);
 void USB_1_Handler (void);
+void CHANGE_NOTICE_A_Handler (void);
+void CHANGE_NOTICE_B_Handler (void);
+void CHANGE_NOTICE_G_Handler (void);
 void UART2_FAULT_Handler (void);
 void UART2_RX_Handler (void);
 void UART2_TX_Handler (void);
@@ -89,6 +92,21 @@ void __attribute__((used)) CORE_TIMER_Handler (void)
 void __attribute__((used)) USB_1_Handler (void)
 {
     DRV_USBFS_USB1_Handler();
+}
+
+void __attribute__((used)) CHANGE_NOTICE_A_Handler (void)
+{
+    CHANGE_NOTICE_A_InterruptHandler();
+}
+
+void __attribute__((used)) CHANGE_NOTICE_B_Handler (void)
+{
+    CHANGE_NOTICE_B_InterruptHandler();
+}
+
+void __attribute__((used)) CHANGE_NOTICE_G_Handler (void)
+{
+    CHANGE_NOTICE_G_InterruptHandler();
 }
 
 void __attribute__((used)) UART2_FAULT_Handler (void)
