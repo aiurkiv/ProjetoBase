@@ -119,7 +119,8 @@ build/default/debug/_ext/1171490990/tasks.o: \
  ../src/config/default/system/debug/sys_debug.h \
  ../src/config/default/system/console/sys_console.h ../src/app.h \
  ../src/app_display.h ../src/config/default/definitions.h \
- ../src/app_usb.h ../src/menu_display.h ../src/config/default/sys_tasks.h
+ ../src/app_usb.h ../src/menu_display.h ../src/medida_gb.h \
+ ../src/config/default/sys_tasks.h
 
 ../src/config/default/configuration.h:
 
@@ -372,5 +373,7 @@ build/default/debug/_ext/1171490990/tasks.o: \
 ../src/app_usb.h:
 
 ../src/menu_display.h:
+
+../src/medida_gb.h:
 
 ../src/config/default/sys_tasks.h:

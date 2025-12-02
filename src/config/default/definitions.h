@@ -72,6 +72,7 @@
 #include "app_display.h"
 #include "app_usb.h"
 #include "menu_display.h"
+#include "medida_gb.h"
 
 
 

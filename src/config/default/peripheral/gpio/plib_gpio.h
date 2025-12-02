@@ -110,6 +110,46 @@
 #define PINO_BTN_CIMA_InterruptEnable()   (CNENBSET = (1U<<3))
 #define PINO_BTN_CIMA_InterruptDisable()  (CNENBCLR = (1U<<3))
 
+/*** Macros for PINO_RELE2_TAP pin ***/
+#define PINO_RELE2_TAP_Set()               (LATCSET = (1U<<0))
+#define PINO_RELE2_TAP_Clear()             (LATCCLR = (1U<<0))
+#define PINO_RELE2_TAP_Toggle()            (LATCINV= (1U<<0))
+#define PINO_RELE2_TAP_OutputEnable()      (TRISCCLR = (1U<<0))
+#define PINO_RELE2_TAP_InputEnable()       (TRISCSET = (1U<<0))
+#define PINO_RELE2_TAP_Get()               ((PORTC >> 0) & 0x1U)
+#define PINO_RELE2_TAP_GetLatch()          ((LATC >> 0) & 0x1U)
+#define PINO_RELE2_TAP_PIN                  GPIO_PIN_RC0
+
+/*** Macros for PINO_RELE1_TAP pin ***/
+#define PINO_RELE1_TAP_Set()               (LATCSET = (1U<<1))
+#define PINO_RELE1_TAP_Clear()             (LATCCLR = (1U<<1))
+#define PINO_RELE1_TAP_Toggle()            (LATCINV= (1U<<1))
+#define PINO_RELE1_TAP_OutputEnable()      (TRISCCLR = (1U<<1))
+#define PINO_RELE1_TAP_InputEnable()       (TRISCSET = (1U<<1))
+#define PINO_RELE1_TAP_Get()               ((PORTC >> 1) & 0x1U)
+#define PINO_RELE1_TAP_GetLatch()          ((LATC >> 1) & 0x1U)
+#define PINO_RELE1_TAP_PIN                  GPIO_PIN_RC1
+
+/*** Macros for PINO_ZERO_CROSS pin ***/
+#define PINO_ZERO_CROSS_Set()               (LATCSET = (1U<<2))
+#define PINO_ZERO_CROSS_Clear()             (LATCCLR = (1U<<2))
+#define PINO_ZERO_CROSS_Toggle()            (LATCINV= (1U<<2))
+#define PINO_ZERO_CROSS_OutputEnable()      (TRISCCLR = (1U<<2))
+#define PINO_ZERO_CROSS_InputEnable()       (TRISCSET = (1U<<2))
+#define PINO_ZERO_CROSS_Get()               ((PORTC >> 2) & 0x1U)
+#define PINO_ZERO_CROSS_GetLatch()          ((LATC >> 2) & 0x1U)
+#define PINO_ZERO_CROSS_PIN                  GPIO_PIN_RC2
+
+/*** Macros for PINO_BUZZER pin ***/
+#define PINO_BUZZER_Set()               (LATCSET = (1U<<11))
+#define PINO_BUZZER_Clear()             (LATCCLR = (1U<<11))
+#define PINO_BUZZER_Toggle()            (LATCINV= (1U<<11))
+#define PINO_BUZZER_OutputEnable()      (TRISCCLR = (1U<<11))
+#define PINO_BUZZER_InputEnable()       (TRISCSET = (1U<<11))
+#define PINO_BUZZER_Get()               ((PORTC >> 11) & 0x1U)
+#define PINO_BUZZER_GetLatch()          ((LATC >> 11) & 0x1U)
+#define PINO_BUZZER_PIN                  GPIO_PIN_RC11
+
 /*** Macros for PINO_LCD_RS pin ***/
 #define PINO_LCD_RS_Set()               (LATESET = (1U<<12))
 #define PINO_LCD_RS_Clear()             (LATECLR = (1U<<12))
@@ -201,6 +241,26 @@
 #define UART2_TX_Get()               ((PORTB >> 9) & 0x1U)
 #define UART2_TX_GetLatch()          ((LATB >> 9) & 0x1U)
 #define UART2_TX_PIN                  GPIO_PIN_RB9
+
+/*** Macros for PINO_EEPROM_WP pin ***/
+#define PINO_EEPROM_WP_Set()               (LATCSET = (1U<<8))
+#define PINO_EEPROM_WP_Clear()             (LATCCLR = (1U<<8))
+#define PINO_EEPROM_WP_Toggle()            (LATCINV= (1U<<8))
+#define PINO_EEPROM_WP_OutputEnable()      (TRISCCLR = (1U<<8))
+#define PINO_EEPROM_WP_InputEnable()       (TRISCSET = (1U<<8))
+#define PINO_EEPROM_WP_Get()               ((PORTC >> 8) & 0x1U)
+#define PINO_EEPROM_WP_GetLatch()          ((LATC >> 8) & 0x1U)
+#define PINO_EEPROM_WP_PIN                  GPIO_PIN_RC8
+
+/*** Macros for PINO_TRIAC_GB pin ***/
+#define PINO_TRIAC_GB_Set()               (LATDSET = (1U<<5))
+#define PINO_TRIAC_GB_Clear()             (LATDCLR = (1U<<5))
+#define PINO_TRIAC_GB_Toggle()            (LATDINV= (1U<<5))
+#define PINO_TRIAC_GB_OutputEnable()      (TRISDCLR = (1U<<5))
+#define PINO_TRIAC_GB_InputEnable()       (TRISDSET = (1U<<5))
+#define PINO_TRIAC_GB_Get()               ((PORTD >> 5) & 0x1U)
+#define PINO_TRIAC_GB_GetLatch()          ((LATD >> 5) & 0x1U)
+#define PINO_TRIAC_GB_PIN                  GPIO_PIN_RD5
 
 /*** Macros for SINAL_TF_220V pin ***/
 #define SINAL_TF_220V_Set()               (LATCSET = (1U<<9))

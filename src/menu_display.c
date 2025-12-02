@@ -301,7 +301,7 @@ void MENU_DISPLAY_Initialize ( void )
     // Configura botões (CN) normalmente
     setup_switches();
 
-    // Configura TMR2 no Harmony para período de 1ms (mas NÃO precisa deixar startado)
+    // Configura TMR3 no Harmony para período de 1ms (mas NÃO precisa deixar startado)
     TMR3_Stop();
     TMR3_InterruptDisable();
 }
@@ -450,46 +450,26 @@ void MENU_DISPLAY_Tasks ( void )
         {
             MENU_DISPLAY_DrawHome();
             atualiza_lcd((char*)menu_displayData.lcd);
-
-            //menu_displayData.state = MENU_DISPLAY_STATE_SERVICE_TASKS;
             break;
         }
         case MENU_DISPLAY_STATE_HP:
         {
             MENU_DISPLAY_DrawHP();
             atualiza_lcd((char*)menu_displayData.lcd);
-
-            //menu_displayData.state = MENU_DISPLAY_STATE_SERVICE_TASKS;
             break;
         }
         case MENU_DISPLAY_STATE_GB:
         {
             MENU_DISPLAY_DrawGB();
             atualiza_lcd((char*)menu_displayData.lcd);
-
-            //menu_displayData.state = MENU_DISPLAY_STATE_SERVICE_TASKS;
             break;
         }
         case MENU_DISPLAY_STATE_TF:
         {
             MENU_DISPLAY_DrawTF();
             atualiza_lcd((char*)menu_displayData.lcd);
-
-            //menu_displayData.state = MENU_DISPLAY_STATE_SERVICE_TASKS;
             break;
         }
-/*
-        case MENU_DISPLAY_STATE_SERVICE_TASKS:
-        {
-            BUTTON_EVENT ev;
-            // Bloqueia um pouco esperando eventos
-            if (xQueueReceive(xButtonEventQueue, &ev, portMAX_DELAY) == pdPASS)
-            {
-                MENU_DISPLAY_HandleButtonEvent(&ev);
-            }
-            break;
-        }
-*/
         default:
             menu_displayData.state = MENU_DISPLAY_STATE_INIT;
             break;

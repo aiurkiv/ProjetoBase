@@ -346,6 +346,7 @@ void SYS_Initialize ( void* data )
     APP_DISPLAY_Initialize();
     APP_USB_Initialize();
     MENU_DISPLAY_Initialize();
+    MEDIDA_GB_Initialize();
 
 
     EVIC_Initialize();

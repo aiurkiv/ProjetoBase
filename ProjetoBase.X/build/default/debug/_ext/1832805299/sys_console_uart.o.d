@@ -121,7 +121,8 @@ build/default/debug/_ext/1832805299/sys_console_uart.o: \
  ../src/config/default/system/int/sys_int.h \
  ../src/config/default/osal/osal.h \
  ../src/config/default/system/debug/sys_debug.h ../src/app.h \
- ../src/app_display.h ../src/app_usb.h ../src/menu_display.h
+ ../src/app_display.h ../src/app_usb.h ../src/menu_display.h \
+ ../src/medida_gb.h
 
 ../src/config/default/system/console/sys_console.h:
 
@@ -378,3 +379,5 @@ build/default/debug/_ext/1832805299/sys_console_uart.o: \
 ../src/app_usb.h:
 
 ../src/menu_display.h:
+
+../src/medida_gb.h:

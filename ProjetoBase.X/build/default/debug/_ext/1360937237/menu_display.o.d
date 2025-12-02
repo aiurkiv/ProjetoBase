@@ -118,7 +118,7 @@ build/default/debug/_ext/1360937237/menu_display.o: ../src/menu_display.c \
  ../src/config/default/system/debug/sys_debug.h \
  ../src/config/default/system/console/sys_console.h ../src/app.h \
  ../src/app_display.h ../src/app_usb.h ../src/menu_display.h \
- ../src/app_display.h
+ ../src/medida_gb.h ../src/app_display.h
 
 ../src/menu_display.h:
 
@@ -369,5 +369,7 @@ build/default/debug/_ext/1360937237/menu_display.o: ../src/menu_display.c \
 ../src/app_usb.h:
 
 ../src/menu_display.h:
+
+../src/medida_gb.h:
 
 ../src/app_display.h:

@@ -69,6 +69,9 @@ extern TaskHandle_t xAPP_USB_Tasks;
 /* Declaration of  MENU_DISPLAY_Tasks task handle */
 extern TaskHandle_t xMENU_DISPLAY_Tasks;
 
+/* Declaration of  MEDIDA_GB_Tasks task handle */
+extern TaskHandle_t xMEDIDA_GB_Tasks;
+
 
 
 
