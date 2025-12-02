@@ -119,7 +119,7 @@ void APP_Tasks ( void )
     while(true)
     {
         memset(display, ' ', sizeof(display));
-        sprintf(display[0], "%d %d", cont, PINO_BTN_MENOS_Get());
+        sprintf(display[0], "%d %d", cont, PINO_BTN_BAIXO_Get());
         //atualiza_lcd((char*)display);
         cont++;
 

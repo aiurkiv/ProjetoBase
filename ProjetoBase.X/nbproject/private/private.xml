@@ -6,12 +6,15 @@
             <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/app_display.c</file>
             <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/config/default/peripheral/gpio/plib_gpio.h</file>
             <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/menu_display.c</file>
+            <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/config/default/peripheral/tmr/plib_tmr3.h</file>
             <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/main.c</file>
             <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/config/default/peripheral/gpio/plib_gpio.c</file>
             <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/menu_display.h</file>
+            <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/config/default/peripheral/tmr/plib_tmr3.c</file>
             <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/app.c</file>
             <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/config/default/tasks.c</file>
             <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/app_display.h</file>
+            <file>file:/C:/Anderson/ProjetoBase/ProjetoBase00/src/config/default/definitions.h</file>
         </group>
     </open-files>
 </project-private>

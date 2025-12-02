@@ -87,9 +87,9 @@ build/default/production/_ext/2128569739/drv_usbfs_host.o: \
  ../src/config/default/system/time/sys_time.h \
  ../src/config/default/system/system.h \
  ../src/config/default/system/time/sys_time_definitions.h \
+ ../src/config/default/peripheral/coretimer/plib_coretimer.h \
  ../src/config/default/usb/usb_chapter_9.h \
  ../src/config/default/usb/usb_host.h \
- ../src/config/default/peripheral/coretimer/plib_coretimer.h \
  ../src/config/default/peripheral/uart/plib_uart2.h \
  ../src/config/default/peripheral/uart/plib_uart_common.h \
  ../src/config/default/peripheral/tmr/plib_tmr3.h \
@@ -300,11 +300,11 @@ build/default/production/_ext/2128569739/drv_usbfs_host.o: \
 
 ../src/config/default/system/time/sys_time_definitions.h:
 
+../src/config/default/peripheral/coretimer/plib_coretimer.h:
+
 ../src/config/default/usb/usb_chapter_9.h:
 
 ../src/config/default/usb/usb_host.h:
-
-../src/config/default/peripheral/coretimer/plib_coretimer.h:
 
 ../src/config/default/peripheral/uart/plib_uart2.h:
 

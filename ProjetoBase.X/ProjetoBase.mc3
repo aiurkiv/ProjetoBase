@@ -10465,8 +10465,8 @@
         &lt;ElementPosition dnOrder=&quot;6&quot; id=&quot;peripheral_usb_1&quot; x=&quot;634&quot; y=&quot;231&quot;/&gt;
         &lt;ElementPosition dnOrder=&quot;7&quot; id=&quot;sys_console&quot; x=&quot;705&quot; y=&quot;9&quot;/&gt;
         &lt;ElementPosition dnOrder=&quot;8&quot; id=&quot;sys_debug&quot; x=&quot;868&quot; y=&quot;8&quot;/&gt;
-        &lt;ElementPosition dnOrder=&quot;9&quot; id=&quot;sys_time&quot; x=&quot;210&quot; y=&quot;100&quot;/&gt;
-        &lt;ElementPosition dnOrder=&quot;10&quot; id=&quot;tmr3&quot; x=&quot;370&quot; y=&quot;100&quot;/&gt;
+        &lt;ElementPosition dnOrder=&quot;9&quot; id=&quot;sys_time&quot; x=&quot;172&quot; y=&quot;182&quot;/&gt;
+        &lt;ElementPosition dnOrder=&quot;10&quot; id=&quot;tmr3&quot; x=&quot;177&quot; y=&quot;114&quot;/&gt;
         &lt;ElementPosition dnOrder=&quot;11&quot; id=&quot;uart2&quot; x=&quot;576&quot; y=&quot;11&quot;/&gt;
         &lt;ElementPosition dnOrder=&quot;12&quot; id=&quot;usb_host&quot; x=&quot;879&quot; y=&quot;193&quot;/&gt;
         &lt;ElementPosition dnOrder=&quot;13&quot; id=&quot;usb_host_hid&quot; x=&quot;880&quot; y=&quot;297&quot;/&gt;
@@ -10562,7 +10562,7 @@
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
   &lt;core dnOrder=&quot;0&quot; id=&quot;BSP_PIN_17_FUNCTION_NAME&quot;&gt;
     &lt;Values dnOrder=&quot;0&quot;&gt;
-      &lt;User dnOrder=&quot;0&quot; value=&quot;PINO_BTN_MENOS&quot;/&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;PINO_BTN_BAIXO&quot;/&gt;
     &lt;/Values&gt;
   &lt;/core&gt;
 &lt;/core&gt;
@@ -10628,7 +10628,7 @@
          <value>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;core&gt;
   &lt;core dnOrder=&quot;0&quot; id=&quot;BSP_PIN_18_FUNCTION_NAME&quot;&gt;
     &lt;Values dnOrder=&quot;0&quot;&gt;
-      &lt;User dnOrder=&quot;0&quot; value=&quot;PINO_BTN_MAIS&quot;/&gt;
+      &lt;User dnOrder=&quot;0&quot; value=&quot;PINO_BTN_CIMA&quot;/&gt;
     &lt;/Values&gt;
   &lt;/core&gt;
 &lt;/core&gt;
@@ -16002,7 +16002,7 @@
       </entry>
       <entry>
          <file>..\src\config\default\definitions.h</file>
-         <hash>eaaea96603c14400b549aaf9736cdb9b48861b66f01d277d3b4a4c9c114563b4</hash>
+         <hash>8427a0622abc0d17da5882644357f477725ddddba1cf8c0814a9ecd18fa33276</hash>
       </entry>
       <entry>
          <file>..\src\config\default\device.h</file>
@@ -16570,7 +16570,7 @@
       </entry>
       <entry>
          <file>..\src\config\default\peripheral\gpio\plib_gpio.h</file>
-         <hash>7fef6b44cc1d6fdef6908e7ad08e535a0922413cf9298f10921c5aa26d06dc35</hash>
+         <hash>657c94694e3d630891a2c82dd913cd73f26f833deea43a6c3870c1553971985b</hash>
       </entry>
       <entry>
          <file>..\src\config\default\peripheral\tmr\plib_tmr3.c</file>

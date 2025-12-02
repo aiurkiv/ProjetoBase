@@ -86,29 +86,29 @@
 #define PINO_BTN_ENTER_InterruptEnable()   (CNENASET = (1U<<12))
 #define PINO_BTN_ENTER_InterruptDisable()  (CNENACLR = (1U<<12))
 
-/*** Macros for PINO_BTN_MENOS pin ***/
-#define PINO_BTN_MENOS_Set()               (LATBSET = (1U<<2))
-#define PINO_BTN_MENOS_Clear()             (LATBCLR = (1U<<2))
-#define PINO_BTN_MENOS_Toggle()            (LATBINV= (1U<<2))
-#define PINO_BTN_MENOS_OutputEnable()      (TRISBCLR = (1U<<2))
-#define PINO_BTN_MENOS_InputEnable()       (TRISBSET = (1U<<2))
-#define PINO_BTN_MENOS_Get()               ((PORTB >> 2) & 0x1U)
-#define PINO_BTN_MENOS_GetLatch()          ((LATB >> 2) & 0x1U)
-#define PINO_BTN_MENOS_PIN                  GPIO_PIN_RB2
-#define PINO_BTN_MENOS_InterruptEnable()   (CNENBSET = (1U<<2))
-#define PINO_BTN_MENOS_InterruptDisable()  (CNENBCLR = (1U<<2))
+/*** Macros for PINO_BTN_BAIXO pin ***/
+#define PINO_BTN_BAIXO_Set()               (LATBSET = (1U<<2))
+#define PINO_BTN_BAIXO_Clear()             (LATBCLR = (1U<<2))
+#define PINO_BTN_BAIXO_Toggle()            (LATBINV= (1U<<2))
+#define PINO_BTN_BAIXO_OutputEnable()      (TRISBCLR = (1U<<2))
+#define PINO_BTN_BAIXO_InputEnable()       (TRISBSET = (1U<<2))
+#define PINO_BTN_BAIXO_Get()               ((PORTB >> 2) & 0x1U)
+#define PINO_BTN_BAIXO_GetLatch()          ((LATB >> 2) & 0x1U)
+#define PINO_BTN_BAIXO_PIN                  GPIO_PIN_RB2
+#define PINO_BTN_BAIXO_InterruptEnable()   (CNENBSET = (1U<<2))
+#define PINO_BTN_BAIXO_InterruptDisable()  (CNENBCLR = (1U<<2))
 
-/*** Macros for PINO_BTN_MAIS pin ***/
-#define PINO_BTN_MAIS_Set()               (LATBSET = (1U<<3))
-#define PINO_BTN_MAIS_Clear()             (LATBCLR = (1U<<3))
-#define PINO_BTN_MAIS_Toggle()            (LATBINV= (1U<<3))
-#define PINO_BTN_MAIS_OutputEnable()      (TRISBCLR = (1U<<3))
-#define PINO_BTN_MAIS_InputEnable()       (TRISBSET = (1U<<3))
-#define PINO_BTN_MAIS_Get()               ((PORTB >> 3) & 0x1U)
-#define PINO_BTN_MAIS_GetLatch()          ((LATB >> 3) & 0x1U)
-#define PINO_BTN_MAIS_PIN                  GPIO_PIN_RB3
-#define PINO_BTN_MAIS_InterruptEnable()   (CNENBSET = (1U<<3))
-#define PINO_BTN_MAIS_InterruptDisable()  (CNENBCLR = (1U<<3))
+/*** Macros for PINO_BTN_CIMA pin ***/
+#define PINO_BTN_CIMA_Set()               (LATBSET = (1U<<3))
+#define PINO_BTN_CIMA_Clear()             (LATBCLR = (1U<<3))
+#define PINO_BTN_CIMA_Toggle()            (LATBINV= (1U<<3))
+#define PINO_BTN_CIMA_OutputEnable()      (TRISBCLR = (1U<<3))
+#define PINO_BTN_CIMA_InputEnable()       (TRISBSET = (1U<<3))
+#define PINO_BTN_CIMA_Get()               ((PORTB >> 3) & 0x1U)
+#define PINO_BTN_CIMA_GetLatch()          ((LATB >> 3) & 0x1U)
+#define PINO_BTN_CIMA_PIN                  GPIO_PIN_RB3
+#define PINO_BTN_CIMA_InterruptEnable()   (CNENBSET = (1U<<3))
+#define PINO_BTN_CIMA_InterruptDisable()  (CNENBCLR = (1U<<3))
 
 /*** Macros for PINO_LCD_RS pin ***/
 #define PINO_LCD_RS_Set()               (LATESET = (1U<<12))
