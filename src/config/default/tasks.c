@@ -129,19 +129,6 @@ static void lMENU_DISPLAY_Tasks(  void *pvParameters  )
 /* Handle for the MEDIDA_GB_Tasks. */
 TaskHandle_t xMEDIDA_GB_Tasks;
 
-
-
-static void lMEDIDA_GB_Tasks(  void *pvParameters  )
-{   
-    while(true)
-    {
-        MEDIDA_GB_Tasks();
-    }
-}
-
-
-
-
 // *****************************************************************************
 // *****************************************************************************
 // Section: System "Tasks" Routine
@@ -216,6 +203,7 @@ void SYS_Tasks ( void )
            &xMENU_DISPLAY_Tasks);
 
     /* Create OS Thread for MEDIDA_GB_Tasks. */
+/*
     (void) xTaskCreate(
            (TaskFunction_t) lMEDIDA_GB_Tasks,
            "MEDIDA_GB_Tasks",
@@ -223,7 +211,7 @@ void SYS_Tasks ( void )
            NULL,
            7U ,
            &xMEDIDA_GB_Tasks);
-
+*/
 
     /* Start RTOS Scheduler. */
     

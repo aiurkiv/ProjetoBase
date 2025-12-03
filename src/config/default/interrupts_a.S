@@ -142,6 +142,24 @@ IntVectorCHANGE_NOTICE_B_Handler:
     nop
     portRESTORE_CONTEXT
     .end   IntVectorCHANGE_NOTICE_B_Handler
+    .extern  CHANGE_NOTICE_C_Handler
+
+    .section   .vector_46,code, keep
+    .equ     __vector_dispatch_46, IntVectorCHANGE_NOTICE_C_Handler
+    .global  __vector_dispatch_46
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorCHANGE_NOTICE_C_Handler
+
+IntVectorCHANGE_NOTICE_C_Handler:
+    portSAVE_CONTEXT
+    la    s6,  CHANGE_NOTICE_C_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorCHANGE_NOTICE_C_Handler
     .extern  CHANGE_NOTICE_G_Handler
 
     .section   .vector_50,code, keep
@@ -214,4 +232,40 @@ IntVectorUART2_TX_Handler:
     nop
     portRESTORE_CONTEXT
     .end   IntVectorUART2_TX_Handler
+    .extern  TIMER_6_Handler
+
+    .section   .vector_76,code, keep
+    .equ     __vector_dispatch_76, IntVectorTIMER_6_Handler
+    .global  __vector_dispatch_76
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorTIMER_6_Handler
+
+IntVectorTIMER_6_Handler:
+    portSAVE_CONTEXT
+    la    s6,  TIMER_6_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorTIMER_6_Handler
+    .extern  TIMER_7_Handler
+
+    .section   .vector_80,code, keep
+    .equ     __vector_dispatch_80, IntVectorTIMER_7_Handler
+    .global  __vector_dispatch_80
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorTIMER_7_Handler
+
+IntVectorTIMER_7_Handler:
+    portSAVE_CONTEXT
+    la    s6,  TIMER_7_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorTIMER_7_Handler
 

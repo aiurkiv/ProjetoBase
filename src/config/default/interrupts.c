@@ -72,10 +72,13 @@ void TIMER_3_Handler (void);
 void USB_1_Handler (void);
 void CHANGE_NOTICE_A_Handler (void);
 void CHANGE_NOTICE_B_Handler (void);
+void CHANGE_NOTICE_C_Handler (void);
 void CHANGE_NOTICE_G_Handler (void);
 void UART2_FAULT_Handler (void);
 void UART2_RX_Handler (void);
 void UART2_TX_Handler (void);
+void TIMER_6_Handler (void);
+void TIMER_7_Handler (void);
 
 
 // *****************************************************************************
@@ -110,6 +113,11 @@ void __attribute__((used)) CHANGE_NOTICE_B_Handler (void)
     CHANGE_NOTICE_B_InterruptHandler();
 }
 
+void __attribute__((used)) CHANGE_NOTICE_C_Handler (void)
+{
+    CHANGE_NOTICE_C_InterruptHandler();
+}
+
 void __attribute__((used)) CHANGE_NOTICE_G_Handler (void)
 {
     CHANGE_NOTICE_G_InterruptHandler();
@@ -128,6 +136,16 @@ void __attribute__((used)) UART2_RX_Handler (void)
 void __attribute__((used)) UART2_TX_Handler (void)
 {
     UART2_TX_InterruptHandler();
+}
+
+void __attribute__((used)) TIMER_6_Handler (void)
+{
+    TIMER_6_InterruptHandler();
+}
+
+void __attribute__((used)) TIMER_7_Handler (void)
+{
+    TIMER_7_InterruptHandler();
 }
 
 

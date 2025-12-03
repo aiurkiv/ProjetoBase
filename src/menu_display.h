@@ -66,6 +66,7 @@ typedef enum
     MENU_DISPLAY_STATE_HP,
     MENU_DISPLAY_STATE_GB,
     MENU_DISPLAY_STATE_TF,
+    ENSAIO_GB_STATE_ENSAIANDO,
 //    MENU_DISPLAY_STATE_SERVICE_TASKS,
     /* TODO: Define states used by the application state machine. */
 
@@ -143,6 +144,7 @@ void MENU_DISPLAY_DrawHome(void);
 void MENU_DISPLAY_DrawHP(void);
 void MENU_DISPLAY_DrawGB(void);
 void MENU_DISPLAY_DrawTF(void);
+void ENSAIO_GB_DrawEnsaiando(void);
 
 //DOM-IGNORE-BEGIN
 #ifdef __cplusplus

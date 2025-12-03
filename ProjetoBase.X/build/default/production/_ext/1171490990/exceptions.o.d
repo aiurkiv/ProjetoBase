@@ -84,13 +84,15 @@ build/default/production/_ext/1171490990/exceptions.o: \
  ../src/config/default/system/time/sys_time.h \
  ../src/config/default/system/system.h \
  ../src/config/default/system/time/sys_time_definitions.h \
- ../src/config/default/peripheral/coretimer/plib_coretimer.h \
  ../src/config/default/usb/usb_chapter_9.h \
  ../src/config/default/usb/usb_host.h \
+ ../src/config/default/peripheral/coretimer/plib_coretimer.h \
+ ../src/config/default/peripheral/tmr/plib_tmr6.h \
+ ../src/config/default/peripheral/tmr/plib_tmr_common.h \
+ ../src/config/default/peripheral/tmr/plib_tmr7.h \
  ../src/config/default/peripheral/uart/plib_uart2.h \
  ../src/config/default/peripheral/uart/plib_uart_common.h \
  ../src/config/default/peripheral/tmr/plib_tmr3.h \
- ../src/config/default/peripheral/tmr/plib_tmr_common.h \
  ../src/config/default/system/console/sys_console.h \
  ../src/config/default/driver/driver.h \
  ../src/config/default/system/console/src/sys_console_local.h \
@@ -119,7 +121,7 @@ build/default/production/_ext/1171490990/exceptions.o: \
  ../src/config/default/system/debug/sys_debug.h \
  ../src/config/default/system/console/sys_console.h ../src/app.h \
  ../src/app_display.h ../src/config/default/definitions.h \
- ../src/app_usb.h ../src/menu_display.h
+ ../src/app_usb.h ../src/menu_display.h ../src/medida_gb.h
 
 ../src/config/default/configuration.h:
 
@@ -293,19 +295,23 @@ build/default/production/_ext/1171490990/exceptions.o: \
 
 ../src/config/default/system/time/sys_time_definitions.h:
 
-../src/config/default/peripheral/coretimer/plib_coretimer.h:
-
 ../src/config/default/usb/usb_chapter_9.h:
 
 ../src/config/default/usb/usb_host.h:
+
+../src/config/default/peripheral/coretimer/plib_coretimer.h:
+
+../src/config/default/peripheral/tmr/plib_tmr6.h:
+
+../src/config/default/peripheral/tmr/plib_tmr_common.h:
+
+../src/config/default/peripheral/tmr/plib_tmr7.h:
 
 ../src/config/default/peripheral/uart/plib_uart2.h:
 
 ../src/config/default/peripheral/uart/plib_uart_common.h:
 
 ../src/config/default/peripheral/tmr/plib_tmr3.h:
-
-../src/config/default/peripheral/tmr/plib_tmr_common.h:
 
 ../src/config/default/system/console/sys_console.h:
 
@@ -372,3 +378,5 @@ build/default/production/_ext/1171490990/exceptions.o: \
 ../src/app_usb.h:
 
 ../src/menu_display.h:
+
+../src/medida_gb.h:

@@ -27,10 +27,11 @@
 // *****************************************************************************
 // *****************************************************************************
 #include <string.h>
+#include <stdio.h>  // no topo do arquivo, se ainda não tiver
 #include "menu_display.h"
 #include "app_display.h"     // atualiza_lcd()
 #include "definitions.h"
-
+#include "medida_gb.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -359,6 +360,25 @@ static bool MENU_DISPLAY_DetectEventBTN_ENTER(void)
             needRedraw = true;
             break;
         }
+        case MENU_DISPLAY_STATE_GB:
+        {
+            menu_displayData.state = ENSAIO_GB_STATE_ENSAIANDO;
+
+            // Garante que não cria duas tasks ao mesmo tempo
+            if (xMEDIDA_GB_Tasks == NULL)
+            {
+                (void) xTaskCreate(
+                    MEDIDA_GB_RunTestTask,   // nossa task one-shot
+                    "MEDIDA_GB",
+                    1024,
+                    NULL,
+                    7U,
+                    &xMEDIDA_GB_Tasks);
+            }
+            
+            needRedraw = true;
+            break;
+        }
         default:
             break;
     }
@@ -470,6 +490,12 @@ void MENU_DISPLAY_Tasks ( void )
             atualiza_lcd((char*)menu_displayData.lcd);
             break;
         }
+        case ENSAIO_GB_STATE_ENSAIANDO:
+        {
+            ENSAIO_GB_DrawEnsaiando();
+            atualiza_lcd((char*)menu_displayData.lcd);
+            break;
+        }
         default:
             menu_displayData.state = MENU_DISPLAY_STATE_INIT;
             break;
@@ -532,6 +558,24 @@ void MENU_DISPLAY_DrawTF(void)
     memset(menu_displayData.lcd, ' ', sizeof(menu_displayData.lcd));
     memcpy(menu_displayData.lcd[0], "     Ensaio TF", 14);
     memcpy(menu_displayData.lcd[3], "<BACK>       <ENTER>", 20);
+}
+
+void ENSAIO_GB_DrawEnsaiando(void)
+{
+    char linha[21];
+
+    // Limpa o buffer
+    memset(menu_displayData.lcd, ' ', sizeof(menu_displayData.lcd));
+
+    // Linha 0: título
+    memcpy(menu_displayData.lcd[0], "  Ensaio GB 5 s  ", 18);
+
+    // Linha 1: corrente (usa medida_gbData.correnteA)
+    (void) snprintf(linha, sizeof(linha), "I = %5.2f A", medida_gbData.correnteA);
+    memcpy(menu_displayData.lcd[1], linha, strlen(linha));
+
+    // Linha 3: mensagem de aguarde
+    memcpy(menu_displayData.lcd[3], "   Aguarde...    ", 18);
 }
 
 /*******************************************************************************

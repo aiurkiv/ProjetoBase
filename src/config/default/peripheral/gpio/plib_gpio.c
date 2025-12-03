@@ -47,10 +47,10 @@
 
 
 /* Array to store callback objects of each configured interrupt */
-static volatile GPIO_PIN_CALLBACK_OBJ portPinCbObj[4];
+static volatile GPIO_PIN_CALLBACK_OBJ portPinCbObj[5];
 
 /* Array to store number of interrupts in each PORT Channel + previous interrupt count */
-static uint8_t portNumCb[7 + 1] = { 0, 1, 3, 3, 3, 3, 3, 4, };
+static uint8_t portNumCb[7 + 1] = { 0, 1, 3, 4, 4, 4, 4, 5, };
 
 /******************************************************************************
   Function:
@@ -92,6 +92,11 @@ void GPIO_Initialize ( void )
     LATC = 0x0U; /* Initial Latch Value */
     TRISCCLR = 0xb03U; /* Direction Control */
     ANSELCCLR = 0x807U; /* Digital Mode Enable */
+
+    /* Change Notice Enable */
+    CNCONCSET = _CNCONC_ON_MASK;
+    PORTC;
+    IEC1SET = _IEC1_CNCIE_MASK;
     /* PORTD Initialization */
     LATD = 0x0U; /* Initial Latch Value */
     TRISDCLR = 0x20U; /* Direction Control */
@@ -128,7 +133,7 @@ void GPIO_Initialize ( void )
 
     uint32_t i;
     /* Initialize Interrupt Pin data structures */
-    portPinCbObj[3 + 0].pin = GPIO_PIN_RG9;
+    portPinCbObj[4 + 0].pin = GPIO_PIN_RG9;
     
     portPinCbObj[0 + 0].pin = GPIO_PIN_RA12;
     
@@ -136,7 +141,9 @@ void GPIO_Initialize ( void )
     
     portPinCbObj[1 + 1].pin = GPIO_PIN_RB3;
     
-    for(i=0U; i<4U; i++)
+    portPinCbObj[3 + 0].pin = GPIO_PIN_RC2;
+    
+    for(i=0U; i<5U; i++)
     {
         portPinCbObj[i].callback = NULL;
     }
@@ -502,6 +509,44 @@ void __attribute__((used)) CHANGE_NOTICE_B_InterruptHandler(void)
 
 // *****************************************************************************
 /* Function:
+    void CHANGE_NOTICE_C_InterruptHandler(void)
+
+  Summary:
+    Interrupt Handler for change notice interrupt for channel C.
+
+  Remarks:
+    It is an internal function called from ISR, user should not call it directly.
+*/
+    
+void __attribute__((used)) CHANGE_NOTICE_C_InterruptHandler(void)
+{
+    uint8_t i;
+    uint32_t status;
+    GPIO_PIN pin;
+    uintptr_t context;
+
+    status  = CNSTATC;
+    status &= CNENC;
+
+    PORTC;
+    IFS1CLR = _IFS1_CNCIF_MASK;
+
+    /* Check pending events and call callback if registered */
+    for(i = 3; i < 4; i++)
+    {
+        pin = portPinCbObj[i].pin;
+
+        if((portPinCbObj[i].callback != NULL) && ((status & ((uint32_t)1U << (pin & 0xFU))) != 0U))
+        {
+            context = portPinCbObj[i].context;
+
+            portPinCbObj[i].callback (pin, context);
+        }
+    }
+}
+
+// *****************************************************************************
+/* Function:
     void CHANGE_NOTICE_G_InterruptHandler(void)
 
   Summary:
@@ -525,7 +570,7 @@ void __attribute__((used)) CHANGE_NOTICE_G_InterruptHandler(void)
     IFS1CLR = _IFS1_CNGIF_MASK;
 
     /* Check pending events and call callback if registered */
-    for(i = 3; i < 4; i++)
+    for(i = 4; i < 5; i++)
     {
         pin = portPinCbObj[i].pin;
 

@@ -61,10 +61,13 @@ void EVIC_Initialize( void )
     IPC8SET = 0x40000U | 0x0U;  /* USB_1:  Priority 1 / Subpriority 0 */
     IPC11SET = 0x4U | 0x0U;  /* CHANGE_NOTICE_A:  Priority 1 / Subpriority 0 */
     IPC11SET = 0x400U | 0x0U;  /* CHANGE_NOTICE_B:  Priority 1 / Subpriority 0 */
+    IPC11SET = 0x40000U | 0x0U;  /* CHANGE_NOTICE_C:  Priority 1 / Subpriority 0 */
     IPC12SET = 0x40000U | 0x0U;  /* CHANGE_NOTICE_G:  Priority 1 / Subpriority 0 */
     IPC14SET = 0x4U | 0x0U;  /* UART2_FAULT:  Priority 1 / Subpriority 0 */
     IPC14SET = 0x400U | 0x0U;  /* UART2_RX:  Priority 1 / Subpriority 0 */
     IPC14SET = 0x40000U | 0x0U;  /* UART2_TX:  Priority 1 / Subpriority 0 */
+    IPC19SET = 0x4U | 0x0U;  /* TIMER_6:  Priority 1 / Subpriority 0 */
+    IPC20SET = 0x4U | 0x0U;  /* TIMER_7:  Priority 1 / Subpriority 0 */
 
 
 }

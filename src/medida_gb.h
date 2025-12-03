@@ -32,6 +32,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "configuration.h"
+#include "definitions.h"
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -83,13 +84,15 @@ typedef enum
 
 typedef struct
 {
-    /* The application's current state */
     MEDIDA_GB_STATES state;
-
-    /* TODO: Define any additional data used by the application. */
-
+    // Corrente instantânea medida (para mostrar no display)
+    float correnteA;
 } MEDIDA_GB_DATA;
 
+// Torna o dado acessível em outros módulos
+extern MEDIDA_GB_DATA medida_gbData;
+
+/*
 typedef struct medida_gb
 {
     // As variáveis abaixo guardam as ultimas leituras numa medida de aterramento
@@ -104,7 +107,7 @@ typedef struct medida_gb
 	unsigned char	gb_leituras_fora;		// Guarda a quantidade de leitura seguidas fora do intervalo durante uma medida
     unsigned char   gb_i_estavel_cont;      // Guarda em 100ms há quanto tempo a corrente já estabilizou
     
-    /**** As variáveis abaixo são usadas no controle do tempo durante a medida ****/
+    // **** As variáveis abaixo são usadas no controle do tempo durante a medida
 
     unsigned short contador_samples;    // Contador do número de amostras lidas pelo AD
     // Número de leituras do AD (samples) que completam um ciclo de senoide
@@ -116,85 +119,39 @@ typedef struct medida_gb
 	// Contador de decisegundos, é incrementado a cada 6 ciclos
 	unsigned short contador_ds;
 } MEDIDA_GB;
-
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Callback Routines
-// *****************************************************************************
-// *****************************************************************************
-/* These routines are called by drivers when certain events occur.
 */
 
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Initialization and State Machine Functions
-// *****************************************************************************
-// *****************************************************************************
+// Config da rede
+#define MAINS_FREQ_HZ        60U
+#define HALF_CYCLE_TICKS     62500U   // ~8,33ms com TMR6 @ 7,5MHz
 
-/*******************************************************************************
-  Function:
-    void MEDIDA_GB_Initialize ( void )
+// Reservamos alguns ticks antes do zero pra desligar o gate
+#define SAFETY_TICKS_TO_ZERO 4000U    // ~0,53ms
+#define MIN_GATING_TICKS     1000U    // ~0,13ms
 
-  Summary:
-     MPLAB Harmony application initialization routine.
+// Limites de potência
+#define TRIAC_POWER_MIN      0U       // 0%
+#define TRIAC_POWER_MAX      100U     // 100%
 
-  Description:
-    This function initializes the Harmony application.  It places the
-    application in its initial state and prepares it to run so that its
-    MEDIDA_GB_Tasks function can be called.
+// Inicializa periféricos e variáveis do controle
+void TRIAC_Control_Initialize(void);
 
-  Precondition:
-    All other system initialization routines should be called before calling
-    this routine (in "SYS_Initialize").
+// Ajusta potência alvo (0..100%)
+void TRIAC_SetPowerPercent(uint8_t percent);
 
-  Parameters:
-    None.
+// Handler chamado pelo zero-cross (INTx)
+void ZC_InterruptHandler(GPIO_PIN pin, uintptr_t context);
 
-  Returns:
-    None.
+// Callback do Timer 6 (registrado no plib TMR6)
+void TMR6_Callback(uint32_t status, uintptr_t context);
 
-  Example:
-    <code>
-    MEDIDA_GB_Initialize();
-    </code>
+// Task de ensaio de corrente (5 segundos, "one-shot")
+void MEDIDA_GB_RunTestTask(void *pvParameters);
 
-  Remarks:
-    This routine must be called from the SYS_Initialize function.
-*/
+// Handle da task (declarado em tasks.c)
+extern TaskHandle_t xMEDIDA_GB_Tasks;
 
 void MEDIDA_GB_Initialize ( void );
-
-
-/*******************************************************************************
-  Function:
-    void MEDIDA_GB_Tasks ( void )
-
-  Summary:
-    MPLAB Harmony Demo application tasks function
-
-  Description:
-    This routine is the Harmony Demo application's tasks function.  It
-    defines the application's state machine and core logic.
-
-  Precondition:
-    The system and application initialization ("SYS_Initialize") should be
-    called before calling this.
-
-  Parameters:
-    None.
-
-  Returns:
-    None.
-
-  Example:
-    <code>
-    MEDIDA_GB_Tasks();
-    </code>
-
-  Remarks:
-    This routine must be called from SYS_Tasks() routine.
- */
-
 void MEDIDA_GB_Tasks( void );
 
 //DOM-IGNORE-BEGIN

@@ -307,6 +307,10 @@ void SYS_Initialize ( void* data )
 	GPIO_Initialize();
 
     CORETIMER_Initialize();
+    TMR6_Initialize();
+
+    TMR7_Initialize();
+
 	UART2_Initialize();
 
     TMR3_Initialize();

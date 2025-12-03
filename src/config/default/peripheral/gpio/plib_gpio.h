@@ -139,6 +139,8 @@
 #define PINO_ZERO_CROSS_Get()               ((PORTC >> 2) & 0x1U)
 #define PINO_ZERO_CROSS_GetLatch()          ((LATC >> 2) & 0x1U)
 #define PINO_ZERO_CROSS_PIN                  GPIO_PIN_RC2
+#define PINO_ZERO_CROSS_InterruptEnable()   (CNENCSET = (1U<<2))
+#define PINO_ZERO_CROSS_InterruptDisable()  (CNENCCLR = (1U<<2))
 
 /*** Macros for PINO_BUZZER pin ***/
 #define PINO_BUZZER_Set()               (LATCSET = (1U<<11))
