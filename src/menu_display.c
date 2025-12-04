@@ -74,33 +74,10 @@ static volatile uint16_t g_debounceCounter = 0;
 static volatile uint16_t g_holdMs[BTN_COUNT];
 static volatile bool     g_repeatActive[BTN_COUNT];
 
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Callback Functions
-// *****************************************************************************
-// *****************************************************************************
 
-/* TODO:  Add any necessary callback functions.
-*/
-
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Local Functions
-// *****************************************************************************
-// *****************************************************************************
-
-
-/* TODO:  Add any necessary local functions.
-*/
-
-
-// *****************************************************************************
-// *****************************************************************************
-// Section: Application Initialization and State Machine Functions
-// *****************************************************************************
-// *****************************************************************************
-
-// Função rápida para ler o estado atual dos pinos em forma de máscara:
+/* static inline uint8_t BUTTONS_ReadRawMask(void)
+ * Função rápida para ler o estado atual dos pinos em forma de máscara
+ */
 static inline uint8_t BUTTONS_ReadRawMask(void)
 {
     uint8_t mask = 0;
@@ -114,7 +91,10 @@ static inline uint8_t BUTTONS_ReadRawMask(void)
     return mask;
 }
 
-// Enviar evento para fila por ISR (interrupção)
+/* static inline void ACTION_SendEventFromISR(ACTION_ID id, ACTION_EVENT_TYPE type,
+                                           BaseType_t *pxHigherPriorityTaskWoken)
+ * Envia evento de ação para fila de ação por ISR (interrupção)
+ */
 static inline void ACTION_SendEventFromISR(ACTION_ID id, ACTION_EVENT_TYPE type,
                                            BaseType_t *pxHigherPriorityTaskWoken)
 {
@@ -125,7 +105,9 @@ static inline void ACTION_SendEventFromISR(ACTION_ID id, ACTION_EVENT_TYPE type,
     xQueueSendFromISR(xActionEventQueue, &ev, pxHigherPriorityTaskWoken);
 }
 
-// Enviar evento para fila via task
+/* void ACTION_SendEventFromTask(ACTION_ID id, ACTION_EVENT_TYPE type)
+ * Envia evento de ação para fila de ação via task
+ */
 void ACTION_SendEventFromTask(ACTION_ID id, ACTION_EVENT_TYPE type)
 {
     ACTION_EVENT ev;
@@ -135,7 +117,7 @@ void ACTION_SendEventFromTask(ACTION_ID id, ACTION_EVENT_TYPE type)
     xQueueSend(xActionEventQueue, &ev, portMAX_DELAY);
 }
 
-/*  switch_handler()
+/* void switch_handler(GPIO_PIN pin, uintptr_t context)
  * Função única que configuro no Callback dos botões.
  * Todos os botões chamam a mesma função pois identifico qual botão foi apertado
  * no debounce do timer 3.
@@ -283,12 +265,8 @@ void TMR3_Callback(uint32_t status, uintptr_t context)  // ou TMR3_InterruptHand
 
 
 
-/*******************************************************************************
-  Function:
-    void MENU_DISPLAY_Initialize ( void )
-
-  Remarks:
-    See prototype in menu_display.h.
+/* void MENU_DISPLAY_Initialize ( void )
+ * Inicia as variáveis e drives necessários para controle do display lcd
  */
 
 void MENU_DISPLAY_Initialize ( void )
@@ -317,169 +295,194 @@ void MENU_DISPLAY_Initialize ( void )
     TMR3_InterruptDisable();
 }
 
-static bool MENU_DISPLAY_DetectEventBTN_CIMA(void)
-{
-    bool needRedraw = false;
-    switch (menu_displayData.state)
-    {
-        case MENU_DISPLAY_STATE_INIT:
-        {
-            if (menu_displayData.currentItem > 0)
-                menu_displayData.currentItem--;
-            else
-                menu_displayData.currentItem = 2;
-            needRedraw = true;
-            break;
-        }
-        default:
-            break;
-    }
-    return needRedraw;
-}
+// *** A partir daqui são as funções que tratam os eventos de ação (xActionEventQueue) *** //
 
-static bool MENU_DISPLAY_DetectEventBTN_BAIXO(void)
-{
-    bool needRedraw = false;
-    switch (menu_displayData.state)
-    {
-        case MENU_DISPLAY_STATE_INIT:
-        {
-            if (menu_displayData.currentItem < 2)
-                menu_displayData.currentItem++;
-            else
-                menu_displayData.currentItem = 0;
-            needRedraw = true;
-            break;
-        }
-        default:
-            break;
-    }
-    return needRedraw;
-}
-
-static bool MENU_DISPLAY_DetectEventBTN_ENTER(void)
-{
-    bool needRedraw = false;
-    switch (menu_displayData.state)
-    {
-        case MENU_DISPLAY_STATE_INIT:
-        {
-            if (menu_displayData.currentItem == 0) menu_displayData.state = MENU_DISPLAY_STATE_HP;
-            else if (menu_displayData.currentItem == 1) menu_displayData.state = MENU_DISPLAY_STATE_GB;
-            else if (menu_displayData.currentItem == 2) menu_displayData.state = MENU_DISPLAY_STATE_TF;
-            needRedraw = true;
-            break;
-        }
-        case MENU_DISPLAY_STATE_GB:
-        {
-            menu_displayData.state = ENSAIO_GB_STATE_ENSAIANDO;
-
-            // Garante que não cria duas tasks ao mesmo tempo
-            if (xMEDIDA_GB_Tasks == NULL)
-            {
-                xTaskCreate(
-                    MEDIDA_GB_RunTestTask,   // nossa task one-shot
-                    "MEDIDA_GB",
-                    1024,
-                    NULL,
-                    7U,
-                    &xMEDIDA_GB_Tasks);
-            }
-            
-            needRedraw = true;
-            break;
-        }
-        default:
-            break;
-    }
-    return needRedraw;
-}
-
-static bool MENU_DISPLAY_DetectEventBTN_BACK(void)
-{
-    bool needRedraw = false;
-    switch (menu_displayData.state)
-    {
-        case MENU_DISPLAY_STATE_HP:
-        case MENU_DISPLAY_STATE_GB:
-        case MENU_DISPLAY_STATE_TF:
-        {
-            menu_displayData.state = MENU_DISPLAY_STATE_INIT;
-            needRedraw = true;
-            break;
-        }
-        default:
-        {
-            menu_displayData.state = MENU_DISPLAY_STATE_INIT;
-            needRedraw = true;
-            break;
-        }
-    }
-    return needRedraw;
-}
-
-static bool MENU_DISPLAY_DetectEventACT_NONE(void)
-{
-    bool needRedraw = false;
-    switch (menu_displayData.state)
-    {
-        case ENSAIO_GB_STATE_ENSAIANDO:
-        {
-            // 
-            needRedraw = true;
-            break;
-        }
-        default:
-            break;
-    }
-    return needRedraw;
-}
-
-static void MENU_DISPLAY_HandleActionEvent(const ACTION_EVENT *ev)
+/* void MENU_DISPLAY_STATE_INIT_DetectEvent(const ACTION_EVENT *ev)
+ * Função que trata ações enquando equipamento no menu iniciar.
+ */
+void MENU_DISPLAY_STATE_INIT_DetectEvent(const ACTION_EVENT *ev)
 {
     switch (ev->id)
     {
         case BTN_CIMA:
+        {
             if (ev->type == BTN_EVENT_PRESS || ev->type == BTN_EVENT_REPEAT)
             {
-                MENU_DISPLAY_DetectEventBTN_CIMA();
+                if (menu_displayData.currentItem > 0)
+                    menu_displayData.currentItem--;
+                else
+                    menu_displayData.currentItem = 2;
             }
             break;
-
+        }
         case BTN_BAIXO:
+        {
             if (ev->type == BTN_EVENT_PRESS || ev->type == BTN_EVENT_REPEAT)
             {
-                MENU_DISPLAY_DetectEventBTN_BAIXO();
+                if (menu_displayData.currentItem < 2)
+                    menu_displayData.currentItem++;
+                else
+                    menu_displayData.currentItem = 0;
             }
             break;
-
+        }
         case BTN_ENTER:
+        {
             if (ev->type == BTN_EVENT_PRESS)
             {
-                // entra na opção
-                MENU_DISPLAY_DetectEventBTN_ENTER();
+                if (menu_displayData.currentItem == 0) menu_displayData.state = MENU_DISPLAY_STATE_HP;
+                else if (menu_displayData.currentItem == 1) menu_displayData.state = MENU_DISPLAY_STATE_GB;
+                else if (menu_displayData.currentItem == 2) menu_displayData.state = MENU_DISPLAY_STATE_TF;
             }
             break;
-
+        }
         case BTN_BACK:
+        {
+            // Faz nada
             if (ev->type == BTN_EVENT_PRESS)
             {
-                // volta
-                MENU_DISPLAY_DetectEventBTN_BACK();
+                
             }
             break;
-            
-        case ACT_NONE:
-            if (ev->type == ACT_EVENT_DISPLAY_UPDATE)
-            {
-                MENU_DISPLAY_DetectEventACT_NONE();
-            }
-            break;
-
-        case BTN_COUNT:
+        }
         default:
         {
-            // Volta ao estado inicial
+            break;
+        }  
+    }
+}
+
+/* void MENU_DISPLAY_STATE_HP_DetectEvent(const ACTION_EVENT *ev)
+ * Função que trata ações enquando equipamento no menu ensaio HP.
+ */
+void MENU_DISPLAY_STATE_HP_DetectEvent(const ACTION_EVENT *ev)
+{
+    switch (ev->id)
+    {
+        case BTN_BACK:
+        {
+            // Volta ao menu inicial
+            if (ev->type == BTN_EVENT_PRESS)
+            {
+                menu_displayData.state = MENU_DISPLAY_STATE_INIT;
+                menu_displayData.currentItem = 0;
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }  
+    }
+}
+
+/* void MENU_DISPLAY_STATE_GB_DetectEvent(const ACTION_EVENT *ev)
+ * Função que trata ações enquando equipamento no menu ensaio GB.
+ */
+void MENU_DISPLAY_STATE_GB_DetectEvent(const ACTION_EVENT *ev)
+{
+    switch (ev->id)
+    {
+        case BTN_ENTER:
+        {
+            if (ev->type == BTN_EVENT_PRESS)
+            {
+                menu_displayData.state = ENSAIO_GB_STATE_ENSAIANDO;
+
+                // Garante que não cria duas tasks ao mesmo tempo
+                if (xMEDIDA_GB_Tasks == NULL)
+                {
+                    // Cria uma task one-shot que existirá somente durante a
+                    // execução do ensaio GB.
+                    xTaskCreate(
+                        MEDIDA_GB_RunTestTask,   // nossa task one-shot
+                        "MEDIDA_GB",
+                        1024,
+                        NULL,
+                        7U,
+                        &xMEDIDA_GB_Tasks);
+                }
+            }
+            break;
+        }
+        case BTN_BACK:
+        {
+            // Volta ao menu inicial
+            if (ev->type == BTN_EVENT_PRESS)
+            {
+                menu_displayData.state = MENU_DISPLAY_STATE_INIT;
+                menu_displayData.currentItem = 0;
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }  
+    }
+}
+
+/* void MENU_DISPLAY_STATE_TF_DetectEvent(const ACTION_EVENT *ev)
+ * Função que trata ações enquando equipamento no menu ensaio TF.
+ */
+void MENU_DISPLAY_STATE_TF_DetectEvent(const ACTION_EVENT *ev)
+{
+    switch (ev->id)
+    {
+        case BTN_BACK:
+        {
+            // Volta ao menu inicial
+            if (ev->type == BTN_EVENT_PRESS)
+            {
+                menu_displayData.state = MENU_DISPLAY_STATE_INIT;
+                menu_displayData.currentItem = 0;
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }  
+    }
+}
+
+/* static void MENU_DISPLAY_HandleActionEvent(const ACTION_EVENT *ev)
+ * Função usada em 'void MENU_DISPLAY_Tasks ( void ).
+ * Ela é chamada assim que uma ação é inserida na pilha xActionEventQueue
+ */
+static void MENU_DISPLAY_HandleActionEvent(const ACTION_EVENT *ev)
+{
+    switch (menu_displayData.state)
+    {
+        case MENU_DISPLAY_STATE_INIT:
+        {
+            MENU_DISPLAY_STATE_INIT_DetectEvent(ev);
+            break;
+        }
+        case MENU_DISPLAY_STATE_HP:
+        {
+            MENU_DISPLAY_STATE_HP_DetectEvent(ev);
+            break;
+        }
+        case MENU_DISPLAY_STATE_GB:
+        {
+            MENU_DISPLAY_STATE_GB_DetectEvent(ev);
+            break;
+        }
+        case MENU_DISPLAY_STATE_TF:
+        {
+            MENU_DISPLAY_STATE_TF_DetectEvent(ev);
+            break;
+        }
+        case ENSAIO_GB_STATE_ENSAIANDO:
+        {
+            break;
+        }
+        default:
+        {
+            // Em teoria nunca cai aqui, mas o ideal é pecar pelo excesso
+            // Garantir que não ha ensaio sendo executado.
+            // Forçar o menu para o inicio
             menu_displayData.state = MENU_DISPLAY_STATE_INIT;
             menu_displayData.currentItem = 0;
             break;
@@ -487,15 +490,14 @@ static void MENU_DISPLAY_HandleActionEvent(const ACTION_EVENT *ev)
     }
 }
 
-/*  void MENU_DISPLAY_Tasks ( void )
- * Função de atualização do display.
+/* void MENU_DISPLAY_Tasks ( void )
+ * Função de atualização das ações e do display.
  * Cada tela do display é um estado. Para cada estado crio uma função que
  * apenas escreve em 'menu_displayData.lcd' o que aparecerá no display.
  * Após tem de chamar a função 'atualiza_lcd((char*)menu_displayData.lcd)'
  * que vai empilhar o escrito em uma lista de eventos para ser consumido
  * pela task de atualização do display.
  */
-
 void MENU_DISPLAY_Tasks ( void )
 {
     switch (menu_displayData.state)
@@ -535,11 +537,15 @@ void MENU_DISPLAY_Tasks ( void )
             break;
     }
     ACTION_EVENT ev;
-    // Bloqueia esperando eventos
+    // Bloqueia esperando evento de ação
+    // O evento de ação pode entrar por 2 caminhos:
+    // - Função ACTION_SendEventFromISR, por evento de interrupção
+    // - Função ACTION_SendEventFromTask, por evento em uma task
     if (xQueueReceive(xActionEventQueue, &ev, portMAX_DELAY) == pdPASS)
         MENU_DISPLAY_HandleActionEvent(&ev);
 }
-/************** Daqui para baixo são os estados e funções de impressão no display **************/
+// ************** Daqui para baixo são as funções que atualizam o texto conforme o menu para o display ************** //
+
 void MENU_DISPLAY_DrawHome(void)
 {
     // Limpa o buffer

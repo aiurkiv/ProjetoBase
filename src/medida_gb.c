@@ -31,20 +31,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "menu_display.h"   // para poder mudar estado do menu
-//#include "definitions.h"
 
 MEDIDA_GB_DATA medida_gbData;
-
-// ==== AJUSTE OS PINOS AQUI CONFORME SUA HARMONY ====
-// Exemplo: Zero-cross em INT1 (pino RB2), Gate em RB5
-
-//#define ZC_TRIS          TRISBbits.TRISB2   // entrada
-//#define ZC_PORT          PORTBbits.RB2      // se precisar ler
-
-//#define TRIAC_GATE_TRIS  TRISBbits.TRISB5   // saída
-//#define TRIAC_GATE_LAT   LATBbits.LATB5
-
-// ====== Variáveis de controle ======
 
 static volatile uint8_t  g_powerPercent   = 0;       // 0..100 %
 static volatile uint32_t g_delayTicks     = 0;       // atraso até disparo (em ticks TMR6)
@@ -92,24 +80,17 @@ void TRIAC_SetPowerPercent(uint8_t percent)
 
 void TRIAC_Control_Initialize(void)
 {
-    // Config gate como saída e desliga
-//    TRIAC_GATE_TRIS = 0;
-//    TRIAC_GATE_LAT  = 0;
+    // Garante que está desligado
     PINO_TRIAC_GB_Clear();
     
     // Aciona relé 2, necessários fazer isso antes de iniciar a medida
     PINO_RELE2_TAP_Set();
-
-    // Zero-cross como entrada
-//    ZC_TRIS = 1;
 
     // ---- TMR6 ----
     // No Harmony você já configurou o TMR6 com PBCLK=60MHz, prescale=1:8.
     // Aqui só paramos, definimos período inicial e registramos callback.
     TMR6_Stop();
     TMR6_InterruptDisable();
-
-    // Talvez usar TMR6_PeriodSet(0)? MPLAB não está reconhecendo TMR6_CounterSet()
     TMR6_CounterSet(0);
     TMR6_PeriodSet(1000U);        // valor qualquer inicial
 
@@ -121,9 +102,6 @@ void TRIAC_Control_Initialize(void)
 
     // Potência inicial baixa
     TRIAC_SetPowerPercent(0);
-
-    // A configuração de INTx (zero-cross) é feita no Harmony.
-    // No handler de INTx você chamará ZC_InterruptHandler().
 }
 
 // ====== Handler chamado pela interrupção de zero-cross ======
@@ -135,7 +113,6 @@ void ZC_InterruptHandler(GPIO_PIN pin, uintptr_t context)
     // Se potência zero, não disparamos TRIAC
     if (g_powerPercent == 0)
     {
-        //TRIAC_GATE_LAT = 0;
         PINO_TRIAC_GB_Clear();
         g_tmr6State = TMR6_STATE_IDLE;
         TMR6_Stop();
@@ -147,7 +124,6 @@ void ZC_InterruptHandler(GPIO_PIN pin, uintptr_t context)
 
     // Programa Timer6 para esperar o atraso até o disparo
     TMR6_Stop();
-    // Talvez usar TMR6_PeriodSet(0)? MPLAB não está reconhecendo TMR6_CounterSet()
     TMR6_CounterSet(0);
     TMR6_PeriodSet((uint16_t)delay);  // HALF_CYCLE_TICKS cabe em 16 bits
 
@@ -168,7 +144,6 @@ void TMR6_Callback(uint32_t status, uintptr_t context)
         case TMR6_STATE_WAIT_DELAY:
         {
             // Chegou a hora de disparar TRIAC
-            //TRIAC_GATE_LAT = 1;
             PINO_TRIAC_GB_Set();
             g_tmr6State = TMR6_STATE_GATE_ON;
 
@@ -189,7 +164,6 @@ void TMR6_Callback(uint32_t status, uintptr_t context)
                 else
                     gateTicks = maxGate;
             }
-            // Talvez usar TMR6_PeriodSet(0)? MPLAB não está reconhecendo TMR6_CounterSet()
             TMR6_CounterSet(0);
             TMR6_PeriodSet((uint16_t)gateTicks);
             break;
@@ -198,7 +172,6 @@ void TMR6_Callback(uint32_t status, uintptr_t context)
         case TMR6_STATE_GATE_ON:
         {
             // Tempo de gate alto acabou, desliga gate
-            //TRIAC_GATE_LAT = 0;
             PINO_TRIAC_GB_Clear();
             g_tmr6State = TMR6_STATE_IDLE;
 
@@ -211,7 +184,6 @@ void TMR6_Callback(uint32_t status, uintptr_t context)
         default:
         {
             // Recuperação simples
-            //TRIAC_GATE_LAT = 0;
             PINO_TRIAC_GB_Clear();
             
             // Desativa o relé 2 ao final do teste
@@ -227,8 +199,6 @@ void TMR6_Callback(uint32_t status, uintptr_t context)
 
 void MEDIDA_GB_RunTestTask(void *pvParameters)
 {
-    (void) pvParameters;
-
     const TickType_t testDuration = pdMS_TO_TICKS(5000);   // 5 segundos
     const TickType_t samplePeriod = pdMS_TO_TICKS(100);     // lê corrente a cada 100 ms
     TickType_t startTick;
@@ -292,7 +262,6 @@ void MEDIDA_GB_RunTestTask(void *pvParameters)
   Remarks:
     See prototype in medida_gb.h.
  */
-
 void MEDIDA_GB_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
@@ -300,7 +269,6 @@ void MEDIDA_GB_Initialize ( void )
     
     GPIO_PinInterruptCallbackRegister(PINO_ZERO_CROSS_PIN, ZC_InterruptHandler, 0);
     PINO_ZERO_CROSS_InterruptDisable();
-    //PINO_ZERO_CROSS_InterruptEnable();
 }
 
 
@@ -311,10 +279,8 @@ void MEDIDA_GB_Initialize ( void )
   Remarks:
     See prototype in medida_gb.h.
  */
-
 void MEDIDA_GB_Tasks ( void )
 {
-
     /* Check the application's current state. */
     switch ( medida_gbData.state )
     {
@@ -337,14 +303,8 @@ void MEDIDA_GB_Tasks ( void )
 
             break;
         }
-
-        /* TODO: implement your application state machine.*/
-
-
-        /* The default state should never be executed. */
         default:
         {
-            /* TODO: Handle error in application's state machine. */
             break;
         }
     }
