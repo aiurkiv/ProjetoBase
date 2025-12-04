@@ -230,7 +230,7 @@ void MEDIDA_GB_RunTestTask(void *pvParameters)
     (void) pvParameters;
 
     const TickType_t testDuration = pdMS_TO_TICKS(5000);   // 5 segundos
-    const TickType_t samplePeriod = pdMS_TO_TICKS(50);     // lê corrente a cada 50 ms
+    const TickType_t samplePeriod = pdMS_TO_TICKS(100);     // lê corrente a cada 100 ms
     TickType_t startTick;
 
     // Garante estado inicial previsível
@@ -248,14 +248,19 @@ void MEDIDA_GB_RunTestTask(void *pvParameters)
     // Marca início do teste
     startTick = xTaskGetTickCount();
 
+    float corrente = 0.0f;  // por enquanto, dummy
     while ((xTaskGetTickCount() - startTick) < testDuration)
     {
         // TODO: aqui você faz a leitura real de corrente via ADC
-        // float corrente = MEDIDA_GB_ReadCurrentADC();
-        float corrente = 0.0f;  // por enquanto, dummy
+        corrente += 0.1f;
 
         medida_gbData.correnteA = corrente;
-
+        
+        // Garante que o estado do display fica em ENSAIO_GB_STATE_ENSAIANDO
+        menu_displayData.state = ENSAIO_GB_STATE_ENSAIANDO;
+        // Como leu um novo valor de corrente, empilha a ação para atualizar o display
+        ACTION_SendEventFromTask(ACT_NONE, ACT_EVENT_DISPLAY_UPDATE);
+        // Delay com valor de 'samplePeriod'
         vTaskDelay(samplePeriod);
     }
 
@@ -271,6 +276,8 @@ void MEDIDA_GB_RunTestTask(void *pvParameters)
 
     // Volta o menu para a tela GB
     menu_displayData.state = MENU_DISPLAY_STATE_GB;
+    // Atualiza o display novamente para o menu GB
+    ACTION_SendEventFromTask(ACT_NONE, ACT_EVENT_DISPLAY_UPDATE);
 
     // Limpa handle e auto-destrói a task (libera memória do stack)
     xMEDIDA_GB_Tasks = NULL;

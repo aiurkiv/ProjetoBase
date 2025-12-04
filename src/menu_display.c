@@ -58,7 +58,7 @@ MENU_DISPLAY_DATA menu_displayData;
 
 
 // Fila de eventos para o menu
-QueueHandle_t xButtonEventQueue = NULL;
+QueueHandle_t xActionEventQueue = NULL;
 
 #define BTN_DEBOUNCE_MS     15
 #define BTN_LONGPRESS_MS    500   // tempo segurando para começar auto-repeat
@@ -114,15 +114,25 @@ static inline uint8_t BUTTONS_ReadRawMask(void)
     return mask;
 }
 
-// Enviar evento para fila (para usar em ISR):
-static inline void BUTTON_SendEventFromISR(BUTTON_ID id, BUTTON_EVENT_TYPE type,
+// Enviar evento para fila por ISR (interrupção)
+static inline void ACTION_SendEventFromISR(ACTION_ID id, ACTION_EVENT_TYPE type,
                                            BaseType_t *pxHigherPriorityTaskWoken)
 {
-    BUTTON_EVENT ev;
+    ACTION_EVENT ev;
     ev.id   = id;
     ev.type = type;
 
-    xQueueSendFromISR(xButtonEventQueue, &ev, pxHigherPriorityTaskWoken);
+    xQueueSendFromISR(xActionEventQueue, &ev, pxHigherPriorityTaskWoken);
+}
+
+// Enviar evento para fila via task
+void ACTION_SendEventFromTask(ACTION_ID id, ACTION_EVENT_TYPE type)
+{
+    ACTION_EVENT ev;
+    ev.id   = id;
+    ev.type = type;
+
+    xQueueSend(xActionEventQueue, &ev, portMAX_DELAY);
 }
 
 /*  switch_handler()
@@ -200,7 +210,7 @@ void TMR3_Callback(uint32_t status, uintptr_t context)  // ou TMR3_InterruptHand
                         g_holdMs[i] = 0;
                         g_repeatActive[i] = false;
 
-                        BUTTON_SendEventFromISR((BUTTON_ID)i, BTN_EVENT_PRESS,
+                        ACTION_SendEventFromISR((ACTION_ID)i, BTN_EVENT_PRESS,
                                                 &xHigherPriorityTaskWoken);
                     }
                     else
@@ -210,7 +220,7 @@ void TMR3_Callback(uint32_t status, uintptr_t context)  // ou TMR3_InterruptHand
                         g_holdMs[i] = 0;
                         g_repeatActive[i] = false;
 
-                        BUTTON_SendEventFromISR((BUTTON_ID)i, BTN_EVENT_RELEASE,
+                        ACTION_SendEventFromISR((ACTION_ID)i, BTN_EVENT_RELEASE,
                                                 &xHigherPriorityTaskWoken);
                     }
                 }
@@ -239,7 +249,7 @@ void TMR3_Callback(uint32_t status, uintptr_t context)  // ou TMR3_InterruptHand
                             g_holdMs[i] = 0;
 
                             // opcional: já manda o primeiro repeat aqui
-                            BUTTON_SendEventFromISR((BUTTON_ID)i, BTN_EVENT_REPEAT,
+                            ACTION_SendEventFromISR((ACTION_ID)i, BTN_EVENT_REPEAT,
                                                     &xHigherPriorityTaskWoken);
                         }
                     }
@@ -248,7 +258,7 @@ void TMR3_Callback(uint32_t status, uintptr_t context)  // ou TMR3_InterruptHand
                         if (g_holdMs[i] >= BTN_REPEAT_MS)
                         {
                             g_holdMs[i] = 0;
-                            BUTTON_SendEventFromISR((BUTTON_ID)i, BTN_EVENT_REPEAT,
+                            ACTION_SendEventFromISR((ACTION_ID)i, BTN_EVENT_REPEAT,
                                                     &xHigherPriorityTaskWoken);
                         }
                     }
@@ -288,8 +298,8 @@ void MENU_DISPLAY_Initialize ( void )
     menu_displayData.currentItem   = 0;
 
     // cria fila de eventos
-    xButtonEventQueue = xQueueCreate(16, sizeof(BUTTON_EVENT));
-    configASSERT(xButtonEventQueue != NULL);
+    xActionEventQueue = xQueueCreate(16, sizeof(ACTION_EVENT));
+    configASSERT(xActionEventQueue != NULL);
 
     g_stableMask = 0;
     g_debounceCounter = 0;
@@ -367,7 +377,7 @@ static bool MENU_DISPLAY_DetectEventBTN_ENTER(void)
             // Garante que não cria duas tasks ao mesmo tempo
             if (xMEDIDA_GB_Tasks == NULL)
             {
-                (void) xTaskCreate(
+                xTaskCreate(
                     MEDIDA_GB_RunTestTask,   // nossa task one-shot
                     "MEDIDA_GB",
                     1024,
@@ -408,7 +418,24 @@ static bool MENU_DISPLAY_DetectEventBTN_BACK(void)
     return needRedraw;
 }
 
-static void MENU_DISPLAY_HandleButtonEvent(const BUTTON_EVENT *ev)
+static bool MENU_DISPLAY_DetectEventACT_NONE(void)
+{
+    bool needRedraw = false;
+    switch (menu_displayData.state)
+    {
+        case ENSAIO_GB_STATE_ENSAIANDO:
+        {
+            // 
+            needRedraw = true;
+            break;
+        }
+        default:
+            break;
+    }
+    return needRedraw;
+}
+
+static void MENU_DISPLAY_HandleActionEvent(const ACTION_EVENT *ev)
 {
     switch (ev->id)
     {
@@ -441,6 +468,13 @@ static void MENU_DISPLAY_HandleButtonEvent(const BUTTON_EVENT *ev)
                 MENU_DISPLAY_DetectEventBTN_BACK();
             }
             break;
+            
+        case ACT_NONE:
+            if (ev->type == ACT_EVENT_DISPLAY_UPDATE)
+            {
+                MENU_DISPLAY_DetectEventACT_NONE();
+            }
+            break;
 
         case BTN_COUNT:
         default:
@@ -448,18 +482,18 @@ static void MENU_DISPLAY_HandleButtonEvent(const BUTTON_EVENT *ev)
             // Volta ao estado inicial
             menu_displayData.state = MENU_DISPLAY_STATE_INIT;
             menu_displayData.currentItem = 0;
-            //MENU_DISPLAY_DrawHome();
             break;
         }  
     }
 }
 
-/******************************************************************************
-  Function:
-    void MENU_DISPLAY_Tasks ( void )
-
-  Remarks:
-    See prototype in menu_display.h.
+/*  void MENU_DISPLAY_Tasks ( void )
+ * Função de atualização do display.
+ * Cada tela do display é um estado. Para cada estado crio uma função que
+ * apenas escreve em 'menu_displayData.lcd' o que aparecerá no display.
+ * Após tem de chamar a função 'atualiza_lcd((char*)menu_displayData.lcd)'
+ * que vai empilhar o escrito em uma lista de eventos para ser consumido
+ * pela task de atualização do display.
  */
 
 void MENU_DISPLAY_Tasks ( void )
@@ -500,10 +534,10 @@ void MENU_DISPLAY_Tasks ( void )
             menu_displayData.state = MENU_DISPLAY_STATE_INIT;
             break;
     }
-    BUTTON_EVENT ev;
-    // Bloqueia um pouco esperando eventos
-    if (xQueueReceive(xButtonEventQueue, &ev, portMAX_DELAY) == pdPASS)
-        MENU_DISPLAY_HandleButtonEvent(&ev);
+    ACTION_EVENT ev;
+    // Bloqueia esperando eventos
+    if (xQueueReceive(xActionEventQueue, &ev, portMAX_DELAY) == pdPASS)
+        MENU_DISPLAY_HandleActionEvent(&ev);
 }
 /************** Daqui para baixo são os estados e funções de impressão no display **************/
 void MENU_DISPLAY_DrawHome(void)
@@ -562,19 +596,10 @@ void MENU_DISPLAY_DrawTF(void)
 
 void ENSAIO_GB_DrawEnsaiando(void)
 {
-    char linha[21];
-
-    // Limpa o buffer
     memset(menu_displayData.lcd, ' ', sizeof(menu_displayData.lcd));
 
-    // Linha 0: título
     memcpy(menu_displayData.lcd[0], "  Ensaio GB 5 s  ", 18);
-
-    // Linha 1: corrente (usa medida_gbData.correnteA)
-    (void) snprintf(linha, sizeof(linha), "I = %5.2f A", medida_gbData.correnteA);
-    memcpy(menu_displayData.lcd[1], linha, strlen(linha));
-
-    // Linha 3: mensagem de aguarde
+    snprintf(menu_displayData.lcd[1], 20, "I = %5.2f A", medida_gbData.correnteA);
     memcpy(menu_displayData.lcd[3], "   Aguarde...    ", 18);
 }
 

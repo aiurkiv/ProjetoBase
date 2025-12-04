@@ -116,21 +116,23 @@ typedef enum
     BTN_ENTER,
     BTN_CIMA,
     BTN_BAIXO,
-    BTN_COUNT
-} BUTTON_ID;
+    BTN_COUNT,
+    ACT_NONE,   // sem evento
+} ACTION_ID;
 
 typedef enum
 {
-    BTN_EVENT_PRESS,    // apertou
-    BTN_EVENT_RELEASE,  // soltou
-    BTN_EVENT_REPEAT    // auto-repeat
-} BUTTON_EVENT_TYPE;
+    BTN_EVENT_PRESS,    // apertou botão
+    BTN_EVENT_RELEASE,  // soltou botão
+    BTN_EVENT_REPEAT,   // auto-repeat botão
+    ACT_EVENT_DISPLAY_UPDATE      // Atualiza display
+} ACTION_EVENT_TYPE;
 
 typedef struct
 {
-    BUTTON_ID        id;
-    BUTTON_EVENT_TYPE type;
-} BUTTON_EVENT;
+    ACTION_ID        id;
+    ACTION_EVENT_TYPE type;
+} ACTION_EVENT;
 
 
 /* MENU_DISPLAY_Initialize()
@@ -145,6 +147,7 @@ void MENU_DISPLAY_DrawHP(void);
 void MENU_DISPLAY_DrawGB(void);
 void MENU_DISPLAY_DrawTF(void);
 void ENSAIO_GB_DrawEnsaiando(void);
+void ACTION_SendEventFromTask(ACTION_ID id, ACTION_EVENT_TYPE type);
 
 //DOM-IGNORE-BEGIN
 #ifdef __cplusplus
