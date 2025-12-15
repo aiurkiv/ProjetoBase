@@ -68,6 +68,7 @@
 // *****************************************************************************
 // *****************************************************************************
 void CORE_TIMER_Handler (void);
+void TIMER_2_Handler (void);
 void TIMER_3_Handler (void);
 void USB_1_Handler (void);
 void CHANGE_NOTICE_A_Handler (void);
@@ -79,6 +80,7 @@ void UART2_RX_Handler (void);
 void UART2_TX_Handler (void);
 void TIMER_6_Handler (void);
 void TIMER_7_Handler (void);
+void ADC_EOS_Handler (void);
 
 
 // *****************************************************************************
@@ -92,6 +94,11 @@ void __attribute__((used)) CORE_TIMER_Handler (void)
 }
 
 
+
+void __attribute__((used)) TIMER_2_Handler (void)
+{
+    TIMER_2_InterruptHandler();
+}
 
 void __attribute__((used)) TIMER_3_Handler (void)
 {
@@ -146,6 +153,11 @@ void __attribute__((used)) TIMER_6_Handler (void)
 void __attribute__((used)) TIMER_7_Handler (void)
 {
     TIMER_7_InterruptHandler();
+}
+
+void __attribute__((used)) ADC_EOS_Handler (void)
+{
+    ADC_EOS_InterruptHandler();
 }
 
 

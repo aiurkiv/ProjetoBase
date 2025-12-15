@@ -311,7 +311,11 @@ void SYS_Initialize ( void* data )
 
     TMR7_Initialize();
 
+    ADCHS_Initialize();
+
 	UART2_Initialize();
+
+    TMR2_Initialize();
 
     TMR3_Initialize();
 

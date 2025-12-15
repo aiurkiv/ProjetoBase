@@ -70,6 +70,24 @@ IntVectorCORE_TIMER_Handler:
     nop
     portRESTORE_CONTEXT
     .end   IntVectorCORE_TIMER_Handler
+    .extern  TIMER_2_Handler
+
+    .section   .vector_9,code, keep
+    .equ     __vector_dispatch_9, IntVectorTIMER_2_Handler
+    .global  __vector_dispatch_9
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorTIMER_2_Handler
+
+IntVectorTIMER_2_Handler:
+    portSAVE_CONTEXT
+    la    s6,  TIMER_2_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorTIMER_2_Handler
     .extern  TIMER_3_Handler
 
     .section   .vector_14,code, keep
@@ -268,4 +286,22 @@ IntVectorTIMER_7_Handler:
     nop
     portRESTORE_CONTEXT
     .end   IntVectorTIMER_7_Handler
+    .extern  ADC_EOS_Handler
+
+    .section   .vector_101,code, keep
+    .equ     __vector_dispatch_101, IntVectorADC_EOS_Handler
+    .global  __vector_dispatch_101
+    .set     nomicromips
+    .set     noreorder
+    .set     nomips16
+    .set     noat
+    .ent  IntVectorADC_EOS_Handler
+
+IntVectorADC_EOS_Handler:
+    portSAVE_CONTEXT
+    la    s6,  ADC_EOS_Handler
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end   IntVectorADC_EOS_Handler
 

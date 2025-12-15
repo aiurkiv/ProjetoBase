@@ -563,7 +563,6 @@ void MENU_DISPLAY_DrawHome(void)
 
     // Preenche com espaços primeiro
     // Já foram preenchidos com ' ' na ClearBuffer
-
     if (menu_displayData.currentItem == 0)
         menu_displayData.lcd[1][0] = '>';
     if (menu_displayData.currentItem == 1)
@@ -604,9 +603,16 @@ void ENSAIO_GB_DrawEnsaiando(void)
 {
     memset(menu_displayData.lcd, ' ', sizeof(menu_displayData.lcd));
 
-    memcpy(menu_displayData.lcd[0], "  Ensaio GB 5 s  ", 18);
-    snprintf(menu_displayData.lcd[1], 20, "I = %5.2f A", medida_gbData.correnteA);
-    memcpy(menu_displayData.lcd[3], "   Aguarde...    ", 18);
+    //memcpy(menu_displayData.lcd[0], "  Ensaio GB 5 s  ", 18);
+
+    // Linha 1: corrente "processada" (placeholder em volts, trocar para A depois)
+    snprintf(menu_displayData.lcd[0], 20, "R = %3u", medida_gbData.resistencia);
+
+    // Linha 2: valores brutos dos ADCs em RA1 e RB0
+    snprintf(menu_displayData.lcd[1], 20, "A=%3u V=%3u", medida_gbData.corrente, medida_gbData.tensao);
+
+    // Linha 3: status
+    snprintf(menu_displayData.lcd[2], 20, "%d %d %d", medida_gbData.fl1, medida_gbData.fl2, medida_gbData.fl3);
 }
 
 /*******************************************************************************

@@ -57,6 +57,7 @@
 // *****************************************************************************
 // *****************************************************************************
 void CORE_TIMER_InterruptHandler( void );
+void TIMER_2_InterruptHandler( void );
 void TIMER_3_InterruptHandler( void );
 void DRV_USBFS_USB1_Handler( void );
 void CHANGE_NOTICE_A_InterruptHandler( void );
@@ -68,6 +69,7 @@ void UART2_RX_InterruptHandler( void );
 void UART2_TX_InterruptHandler( void );
 void TIMER_6_InterruptHandler( void );
 void TIMER_7_InterruptHandler( void );
+void ADC_EOS_InterruptHandler( void );
 
 
 

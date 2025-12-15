@@ -53,12 +53,14 @@
 #include "peripheral/evic/plib_evic.h"
 #include "driver/usb/usbfs/drv_usbfs.h"
 #include "system/time/sys_time.h"
+#include "peripheral/tmr/plib_tmr6.h"
+#include "peripheral/coretimer/plib_coretimer.h"
 #include "usb/usb_chapter_9.h"
 #include "usb/usb_host.h"
-#include "peripheral/coretimer/plib_coretimer.h"
-#include "peripheral/tmr/plib_tmr6.h"
 #include "peripheral/tmr/plib_tmr7.h"
+#include "peripheral/adchs/plib_adchs.h"
 #include "peripheral/uart/plib_uart2.h"
+#include "peripheral/tmr/plib_tmr2.h"
 #include "peripheral/tmr/plib_tmr3.h"
 #include "system/console/sys_console.h"
 #include "system/console/src/sys_console_uart_definitions.h"
@@ -94,6 +96,12 @@ extern "C" {
 
 /* CPU clock frequency */
 #define CPU_CLOCK_FREQUENCY 120000000U
+    
+// Macro para executar um NOP
+#define DELAY_25NS()		_nop() 
+#define DELAY_100NS()		_nop() 
+#define DELAY_200NS()		_nop() ;_nop() ;_nop() ;_nop() ;_nop()
+#define DELAY_250NS()		_nop() ;_nop() ;_nop() ;_nop() ;_nop()  ;_nop()
 
 // *****************************************************************************
 // *****************************************************************************

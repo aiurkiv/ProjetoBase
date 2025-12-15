@@ -87,6 +87,27 @@ typedef struct
     MEDIDA_GB_STATES state;
     // Corrente instantânea medida (para mostrar no display)
     float correnteA;
+    // --- Campos de debug ADC
+    uint16_t adcRb0Raw;   // AN1 / RB0
+    uint16_t adcRa1Raw;   // AN2 / RA1
+    
+    // Leituras brutas dos ADCs [RA1(corrente) e RB0(tensao)]
+    uint32_t corrente;
+    uint32_t tensao;
+    uint32_t resistencia;
+    
+    // Acumula os quadrados da tensão e corrente.
+    // O cálculo da tensão e corrente é feito a cada 128 ciclos de interrupção
+    // do timer2 e usa a soma dos quadrados dos valores acumulados
+    uint32_t soma_quad_i;
+    uint32_t soma_quad_v;
+    
+    uint8_t cont_ciclos;
+    
+    uint16_t teste;
+    uint16_t fl1;
+    uint16_t fl2;
+    uint16_t fl3;
 } MEDIDA_GB_DATA;
 
 // Torna o dado acessível em outros módulos

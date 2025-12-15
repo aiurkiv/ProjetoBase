@@ -56,18 +56,20 @@ void EVIC_Initialize( void )
     INTCONSET = _INTCON_MVEC_MASK;
 
     /* Set up priority and subpriority of enabled interrupts */
-    IPC0SET = 0x4U | 0x0U;  /* CORE_TIMER:  Priority 1 / Subpriority 0 */
+    IPC0SET = 0x1cU | 0x3U;  /* CORE_TIMER:  Priority 7 / Subpriority 3 */
+    IPC2SET = 0x1c00U | 0x0U;  /* TIMER_2:  Priority 7 / Subpriority 0 */
     IPC3SET = 0x40000U | 0x0U;  /* TIMER_3:  Priority 1 / Subpriority 0 */
-    IPC8SET = 0x40000U | 0x0U;  /* USB_1:  Priority 1 / Subpriority 0 */
-    IPC11SET = 0x4U | 0x0U;  /* CHANGE_NOTICE_A:  Priority 1 / Subpriority 0 */
-    IPC11SET = 0x400U | 0x0U;  /* CHANGE_NOTICE_B:  Priority 1 / Subpriority 0 */
-    IPC11SET = 0x40000U | 0x0U;  /* CHANGE_NOTICE_C:  Priority 1 / Subpriority 0 */
-    IPC12SET = 0x40000U | 0x0U;  /* CHANGE_NOTICE_G:  Priority 1 / Subpriority 0 */
+    IPC8SET = 0x180000U | 0x30000U;  /* USB_1:  Priority 6 / Subpriority 3 */
+    IPC11SET = 0x1cU | 0x2U;  /* CHANGE_NOTICE_A:  Priority 7 / Subpriority 2 */
+    IPC11SET = 0x1c00U | 0x200U;  /* CHANGE_NOTICE_B:  Priority 7 / Subpriority 2 */
+    IPC11SET = 0x1c0000U | 0x20000U;  /* CHANGE_NOTICE_C:  Priority 7 / Subpriority 2 */
+    IPC12SET = 0x1c0000U | 0x20000U;  /* CHANGE_NOTICE_G:  Priority 7 / Subpriority 2 */
     IPC14SET = 0x4U | 0x0U;  /* UART2_FAULT:  Priority 1 / Subpriority 0 */
     IPC14SET = 0x400U | 0x0U;  /* UART2_RX:  Priority 1 / Subpriority 0 */
     IPC14SET = 0x40000U | 0x0U;  /* UART2_TX:  Priority 1 / Subpriority 0 */
     IPC19SET = 0x4U | 0x0U;  /* TIMER_6:  Priority 1 / Subpriority 0 */
     IPC20SET = 0x4U | 0x0U;  /* TIMER_7:  Priority 1 / Subpriority 0 */
+    IPC25SET = 0x1c00U | 0x100U;  /* ADC_EOS:  Priority 7 / Subpriority 1 */
 
 
 }

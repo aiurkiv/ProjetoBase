@@ -86,6 +86,26 @@
 #define PINO_BTN_ENTER_InterruptEnable()   (CNENASET = (1U<<12))
 #define PINO_BTN_ENTER_InterruptDisable()  (CNENACLR = (1U<<12))
 
+/*** Macros for PINO_MUX_B pin ***/
+#define PINO_MUX_B_Set()               (LATASET = (1U<<11))
+#define PINO_MUX_B_Clear()             (LATACLR = (1U<<11))
+#define PINO_MUX_B_Toggle()            (LATAINV= (1U<<11))
+#define PINO_MUX_B_OutputEnable()      (TRISACLR = (1U<<11))
+#define PINO_MUX_B_InputEnable()       (TRISASET = (1U<<11))
+#define PINO_MUX_B_Get()               ((PORTA >> 11) & 0x1U)
+#define PINO_MUX_B_GetLatch()          ((LATA >> 11) & 0x1U)
+#define PINO_MUX_B_PIN                  GPIO_PIN_RA11
+
+/*** Macros for PINO_MUX_A pin ***/
+#define PINO_MUX_A_Set()               (LATASET = (1U<<0))
+#define PINO_MUX_A_Clear()             (LATACLR = (1U<<0))
+#define PINO_MUX_A_Toggle()            (LATAINV= (1U<<0))
+#define PINO_MUX_A_OutputEnable()      (TRISACLR = (1U<<0))
+#define PINO_MUX_A_InputEnable()       (TRISASET = (1U<<0))
+#define PINO_MUX_A_Get()               ((PORTA >> 0) & 0x1U)
+#define PINO_MUX_A_GetLatch()          ((LATA >> 0) & 0x1U)
+#define PINO_MUX_A_PIN                  GPIO_PIN_RA0
+
 /*** Macros for PINO_BTN_BAIXO pin ***/
 #define PINO_BTN_BAIXO_Set()               (LATBSET = (1U<<2))
 #define PINO_BTN_BAIXO_Clear()             (LATBCLR = (1U<<2))

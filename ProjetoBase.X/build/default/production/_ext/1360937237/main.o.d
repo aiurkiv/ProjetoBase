@@ -83,14 +83,17 @@ build/default/production/_ext/1360937237/main.o: ../src/main.c \
  ../src/config/default/system/time/sys_time.h \
  ../src/config/default/system/system.h \
  ../src/config/default/system/time/sys_time_definitions.h \
- ../src/config/default/usb/usb_chapter_9.h \
- ../src/config/default/usb/usb_host.h \
- ../src/config/default/peripheral/coretimer/plib_coretimer.h \
  ../src/config/default/peripheral/tmr/plib_tmr6.h \
  ../src/config/default/peripheral/tmr/plib_tmr_common.h \
+ ../src/config/default/peripheral/coretimer/plib_coretimer.h \
+ ../src/config/default/usb/usb_chapter_9.h \
+ ../src/config/default/usb/usb_host.h \
  ../src/config/default/peripheral/tmr/plib_tmr7.h \
+ ../src/config/default/peripheral/adchs/plib_adchs.h \
+ ../src/config/default/peripheral/adchs/plib_adchs_common.h \
  ../src/config/default/peripheral/uart/plib_uart2.h \
  ../src/config/default/peripheral/uart/plib_uart_common.h \
+ ../src/config/default/peripheral/tmr/plib_tmr2.h \
  ../src/config/default/peripheral/tmr/plib_tmr3.h \
  ../src/config/default/system/console/sys_console.h \
  ../src/config/default/driver/driver.h \
@@ -292,21 +295,27 @@ build/default/production/_ext/1360937237/main.o: ../src/main.c \
 
 ../src/config/default/system/time/sys_time_definitions.h:
 
-../src/config/default/usb/usb_chapter_9.h:
-
-../src/config/default/usb/usb_host.h:
-
-../src/config/default/peripheral/coretimer/plib_coretimer.h:
-
 ../src/config/default/peripheral/tmr/plib_tmr6.h:
 
 ../src/config/default/peripheral/tmr/plib_tmr_common.h:
 
+../src/config/default/peripheral/coretimer/plib_coretimer.h:
+
+../src/config/default/usb/usb_chapter_9.h:
+
+../src/config/default/usb/usb_host.h:
+
 ../src/config/default/peripheral/tmr/plib_tmr7.h:
+
+../src/config/default/peripheral/adchs/plib_adchs.h:
+
+../src/config/default/peripheral/adchs/plib_adchs_common.h:
 
 ../src/config/default/peripheral/uart/plib_uart2.h:
 
 ../src/config/default/peripheral/uart/plib_uart_common.h:
+
+../src/config/default/peripheral/tmr/plib_tmr2.h:
 
 ../src/config/default/peripheral/tmr/plib_tmr3.h:
 
