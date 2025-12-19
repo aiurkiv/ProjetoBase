@@ -63,6 +63,7 @@ typedef enum
 {
     /* Application's state machine's initial state. */
     MENU_DISPLAY_STATE_INIT=0,
+    MENU_DISPLAY_STATE_TECLADO,
     MENU_DISPLAY_STATE_HP,
     MENU_DISPLAY_STATE_GB,
     MENU_DISPLAY_STATE_TF,
@@ -103,6 +104,9 @@ typedef struct
     uint8_t currentItem;         // item selecionado na tela
 
     char lcd[4][20];             // buffer 4x20 próprio do menu
+    
+    char debug1;
+    char debug2;
 
 } MENU_DISPLAY_DATA;
 
@@ -143,6 +147,7 @@ void MENU_DISPLAY_Tasks( void );
 
 /************** Daqui para baixo são os estados e funções de impressão no display **************/
 void MENU_DISPLAY_DrawHome(void);
+void MENU_DISPLAY_DrawTeclado(void);
 void MENU_DISPLAY_DrawHP(void);
 void MENU_DISPLAY_DrawGB(void);
 void MENU_DISPLAY_DrawTF(void);

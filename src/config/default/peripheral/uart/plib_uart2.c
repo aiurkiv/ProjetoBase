@@ -151,8 +151,8 @@ void UART2_Initialize( void )
         uart2Obj.rdBufferSize = UART2_READ_BUFFER_SIZE;
         uart2Obj.wrBufferSize = UART2_WRITE_BUFFER_SIZE;
     }
-
-
+    // Inverte o bit de saída.
+    U2STAbits.UTXINV = 1;
     /* Turn ON UART2 */
     U2MODESET = _U2MODE_ON_MASK;
 

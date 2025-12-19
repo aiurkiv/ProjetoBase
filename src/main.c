@@ -39,6 +39,7 @@ int main ( void )
     /* Initialize all modules */
     SYS_Initialize ( NULL );
 
+    UART2_Write("\r\nLigou", 7);
     while ( true )
     {
         /* Maintain state machines of all polled MPLAB Harmony modules. */

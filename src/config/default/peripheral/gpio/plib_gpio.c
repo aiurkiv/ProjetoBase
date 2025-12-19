@@ -79,8 +79,8 @@ void GPIO_Initialize ( void )
     /* PORTB Initialization */
     ODCBSET = 0x3000U; /* Open Drain Enable */
     LATB = 0x0U; /* Initial Latch Value */
-    TRISBCLR = 0x3090U; /* Direction Control */
-    ANSELBCLR = 0x28cU; /* Digital Mode Enable */
+    TRISBCLR = 0x3010U; /* Direction Control */
+    ANSELBCLR = 0x20cU; /* Digital Mode Enable */
     CNPUBSET = 0xcU; /* Pull-Up Enable */
 
     /* Change Notice Enable */
@@ -90,7 +90,7 @@ void GPIO_Initialize ( void )
     /* PORTC Initialization */
     ODCCSET = 0x200U; /* Open Drain Enable */
     LATC = 0x0U; /* Initial Latch Value */
-    TRISCCLR = 0xb03U; /* Direction Control */
+    TRISCCLR = 0xb83U; /* Direction Control */
     ANSELCCLR = 0x807U; /* Digital Mode Enable */
 
     /* Change Notice Enable */

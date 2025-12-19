@@ -249,20 +249,20 @@
 #define PINO_LCD_D7_PIN                  GPIO_PIN_RA4
 #define PINO_LCD_D7_OUT                 LATAbits.LATA4
 
-/*** Macros for VBUSON pin ***/
-#define VBUSON_Set()               (LATBSET = (1U<<7))
-#define VBUSON_Clear()             (LATBCLR = (1U<<7))
-#define VBUSON_Toggle()            (LATBINV= (1U<<7))
-#define VBUSON_OutputEnable()      (TRISBCLR = (1U<<7))
-#define VBUSON_InputEnable()       (TRISBSET = (1U<<7))
-#define VBUSON_Get()               ((PORTB >> 7) & 0x1U)
-#define VBUSON_GetLatch()          ((LATB >> 7) & 0x1U)
-#define VBUSON_PIN                  GPIO_PIN_RB7
-
 /*** Macros for UART2_TX pin ***/
 #define UART2_TX_Get()               ((PORTB >> 9) & 0x1U)
 #define UART2_TX_GetLatch()          ((LATB >> 9) & 0x1U)
 #define UART2_TX_PIN                  GPIO_PIN_RB9
+
+/*** Macros for VBUSON pin ***/
+#define VBUSON_Set()               (LATCSET = (1U<<7))
+#define VBUSON_Clear()             (LATCCLR = (1U<<7))
+#define VBUSON_Toggle()            (LATCINV= (1U<<7))
+#define VBUSON_OutputEnable()      (TRISCCLR = (1U<<7))
+#define VBUSON_InputEnable()       (TRISCSET = (1U<<7))
+#define VBUSON_Get()               ((PORTC >> 7) & 0x1U)
+#define VBUSON_GetLatch()          ((LATC >> 7) & 0x1U)
+#define VBUSON_PIN                  GPIO_PIN_RC7
 
 /*** Macros for PINO_EEPROM_WP pin ***/
 #define PINO_EEPROM_WP_Set()               (LATCSET = (1U<<8))

@@ -109,7 +109,7 @@ static void lAPP_USB_Tasks(  void *pvParameters  )
     while(true)
     {
         APP_USB_Tasks();
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Atualiza a cada 1 segundo *** testes
+        vTaskDelay(pdMS_TO_TICKS(10)); // Atualiza a cada 10ms ***testes
     }
 }
 
@@ -190,7 +190,7 @@ void SYS_Tasks ( void )
            "APP_USB_Tasks",
            1024,
            NULL,
-           1U ,
+           6U ,
            &xAPP_USB_Tasks);
 
     /* Create OS Thread for MENU_DISPLAY_Tasks. */
@@ -201,17 +201,6 @@ void SYS_Tasks ( void )
            NULL,
            1U ,
            &xMENU_DISPLAY_Tasks);
-
-    /* Create OS Thread for MEDIDA_GB_Tasks. */
-/*
-    (void) xTaskCreate(
-           (TaskFunction_t) lMEDIDA_GB_Tasks,
-           "MEDIDA_GB_Tasks",
-           1024,
-           NULL,
-           7U ,
-           &xMEDIDA_GB_Tasks);
-*/
 
     /* Start RTOS Scheduler. */
     

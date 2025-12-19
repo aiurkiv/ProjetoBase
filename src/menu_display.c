@@ -32,13 +32,14 @@
 #include "app_display.h"     // atualiza_lcd()
 #include "definitions.h"
 #include "medida_gb.h"
+#include "app_usb.h"
 
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
 // *****************************************************************************
 // *****************************************************************************
-
+extern APP_USB_DATA app_usbData;
 // *****************************************************************************
 /* Application Data
 
@@ -268,12 +269,14 @@ void TMR3_Callback(uint32_t status, uintptr_t context)  // ou TMR3_InterruptHand
 /* void MENU_DISPLAY_Initialize ( void )
  * Inicia as variáveis e drives necessários para controle do display lcd
  */
-
 void MENU_DISPLAY_Initialize ( void )
 {
     menu_displayData.state         = MENU_DISPLAY_STATE_INIT;
     menu_displayData.currentScreen = MENU_SCREEN_HOME;
     menu_displayData.currentItem   = 0;
+    
+    menu_displayData.debug1 = 0;
+    menu_displayData.debug2 = 0;
 
     // cria fila de eventos
     xActionEventQueue = xQueueCreate(16, sizeof(ACTION_EVENT));
@@ -308,10 +311,10 @@ void MENU_DISPLAY_STATE_INIT_DetectEvent(const ACTION_EVENT *ev)
         {
             if (ev->type == BTN_EVENT_PRESS || ev->type == BTN_EVENT_REPEAT)
             {
-                if (menu_displayData.currentItem > 0)
+                if (menu_displayData.currentItem > 1)
                     menu_displayData.currentItem--;
                 else
-                    menu_displayData.currentItem = 2;
+                    menu_displayData.currentItem = 4;
             }
             break;
         }
@@ -319,10 +322,10 @@ void MENU_DISPLAY_STATE_INIT_DetectEvent(const ACTION_EVENT *ev)
         {
             if (ev->type == BTN_EVENT_PRESS || ev->type == BTN_EVENT_REPEAT)
             {
-                if (menu_displayData.currentItem < 2)
+                if (menu_displayData.currentItem < 4)
                     menu_displayData.currentItem++;
                 else
-                    menu_displayData.currentItem = 0;
+                    menu_displayData.currentItem = 1;
             }
             break;
         }
@@ -330,9 +333,10 @@ void MENU_DISPLAY_STATE_INIT_DetectEvent(const ACTION_EVENT *ev)
         {
             if (ev->type == BTN_EVENT_PRESS)
             {
-                if (menu_displayData.currentItem == 0) menu_displayData.state = MENU_DISPLAY_STATE_HP;
-                else if (menu_displayData.currentItem == 1) menu_displayData.state = MENU_DISPLAY_STATE_GB;
-                else if (menu_displayData.currentItem == 2) menu_displayData.state = MENU_DISPLAY_STATE_TF;
+                if (menu_displayData.currentItem == 1) menu_displayData.state = MENU_DISPLAY_STATE_TECLADO;
+                else if (menu_displayData.currentItem == 2) menu_displayData.state = MENU_DISPLAY_STATE_HP;
+                else if (menu_displayData.currentItem == 3) menu_displayData.state = MENU_DISPLAY_STATE_GB;
+                else if (menu_displayData.currentItem == 4) menu_displayData.state = MENU_DISPLAY_STATE_TF;
             }
             break;
         }
@@ -342,6 +346,38 @@ void MENU_DISPLAY_STATE_INIT_DetectEvent(const ACTION_EVENT *ev)
             if (ev->type == BTN_EVENT_PRESS)
             {
                 
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }  
+    }
+}
+
+/* void MENU_DISPLAY_STATE_TECLADO_DetectEvent(const ACTION_EVENT *ev)
+ * Função que trata ações enquando equipamento no menu ensaio HP.
+ */
+void MENU_DISPLAY_STATE_TECLADO_DetectEvent(const ACTION_EVENT *ev)
+{
+    switch (ev->id)
+    {
+        case BTN_BACK:
+        {
+            // Volta ao menu inicial
+            if (ev->type == BTN_EVENT_PRESS)
+            {
+                menu_displayData.state = MENU_DISPLAY_STATE_INIT;
+                menu_displayData.currentItem = 0;
+            }
+            break;
+        }
+        case BTN_ENTER:
+        {
+            if (ev->type == BTN_EVENT_PRESS)
+            {
+                menu_displayData.debug1 += 1;
             }
             break;
         }
@@ -459,6 +495,11 @@ static void MENU_DISPLAY_HandleActionEvent(const ACTION_EVENT *ev)
             MENU_DISPLAY_STATE_INIT_DetectEvent(ev);
             break;
         }
+        case MENU_DISPLAY_STATE_TECLADO:
+        {
+            MENU_DISPLAY_STATE_TECLADO_DetectEvent(ev);
+            break;
+        }
         case MENU_DISPLAY_STATE_HP:
         {
             MENU_DISPLAY_STATE_HP_DetectEvent(ev);
@@ -508,6 +549,12 @@ void MENU_DISPLAY_Tasks ( void )
             atualiza_lcd((char*)menu_displayData.lcd);
             break;
         }
+        case MENU_DISPLAY_STATE_TECLADO:
+        {
+            MENU_DISPLAY_DrawTeclado();
+            atualiza_lcd((char*)menu_displayData.lcd);
+            break;
+        }
         case MENU_DISPLAY_STATE_HP:
         {
             MENU_DISPLAY_DrawHP();
@@ -550,29 +597,30 @@ void MENU_DISPLAY_DrawHome(void)
 {
     // Limpa o buffer
     memset(menu_displayData.lcd, ' ', sizeof(menu_displayData.lcd));
+    
+    if (menu_displayData.currentItem < 4)
+    {
+        snprintf(menu_displayData.lcd[0], 20, "   HGF148 - Teste");
+        snprintf(menu_displayData.lcd[1], 20, "Teste teclado");
+        snprintf(menu_displayData.lcd[2], 20, "Ensaio HP");
+        snprintf(menu_displayData.lcd[3], 20, "Ensaio GB");
+        menu_displayData.lcd[menu_displayData.currentItem][19] = '<';
+    }
+    else
+    {
+        snprintf(menu_displayData.lcd[0], 20, "Ensaio TF");
+        menu_displayData.lcd[menu_displayData.currentItem - 4][19] = '<';
+    }
+}
 
-    // Linha 0 - título
-    const char *titulo = "  Menu Principal  ";
-    memcpy(menu_displayData.lcd[0], titulo, strlen(titulo));
-
-    // Linhas 1,2,3 - itens (exemplo)
-    // currentItem define onde fica o '>'
-    const char *it1 = "Ensaio HP";
-    const char *it2 = "Ensaio GB";
-    const char *it3 = "Ensaio TF";
-
-    // Preenche com espaços primeiro
-    // Já foram preenchidos com ' ' na ClearBuffer
-    if (menu_displayData.currentItem == 0)
-        menu_displayData.lcd[1][0] = '>';
-    if (menu_displayData.currentItem == 1)
-        menu_displayData.lcd[2][0] = '>';
-    if (menu_displayData.currentItem == 2)
-        menu_displayData.lcd[3][0] = '>';
-
-    memcpy(&menu_displayData.lcd[1][2], it1, strlen(it1));
-    memcpy(&menu_displayData.lcd[2][2], it2, strlen(it2));
-    memcpy(&menu_displayData.lcd[3][2], it3, strlen(it3));
+void MENU_DISPLAY_DrawTeclado(void)
+{
+    // Limpa o buffer
+    memset(menu_displayData.lcd, ' ', sizeof(menu_displayData.lcd));
+    memcpy(menu_displayData.lcd[0], "     Teclado", 14);
+    snprintf(menu_displayData.lcd[1], 20, "%s", app_usbData.string);
+    snprintf(menu_displayData.lcd[2], 20, "%d %d", menu_displayData.debug1, menu_displayData.debug2);
+    memcpy(menu_displayData.lcd[3], "<BACK>       <ENTER>", 20);
 }
 
 void MENU_DISPLAY_DrawHP(void)
